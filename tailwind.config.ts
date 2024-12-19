@@ -9,7 +9,22 @@ export default {
   ],
   theme: {
   	extend: {
+		animation: {
+			"shiny-text": "shiny-text 10s infinite",
+		  },
+		  keyframes: {
+			
+			"shiny-text": {
+			  "0%, 90%, 100%": {
+				"background-position": "calc(-100% - var(--shiny-width)) 0",
+			  },
+			  "30%, 60%": {
+				"background-position": "calc(100% + var(--shiny-width)) 0",
+			  },
+			},
+		  },
   		colors: {
+			
   			background: 'hsl(var(--background))',
   			foreground: 'hsl(var(--foreground))',
   			card: {

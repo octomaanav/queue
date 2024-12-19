@@ -62,6 +62,29 @@ body {
   }
 }
 
+.shiny-text {
+  background: linear-gradient(90deg, #ff6ec4, #7873f5, #ffc6b4, #f093fb, #ff6ec4);
+  /* background: linear-gradient(90deg, #64748b, #e2e8f0, #64748b, #e2e8f0, #64748b); */
+  background-size: 200% 100%;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: shiny-gradient 3s linear infinite;
+}
+
+@keyframes shiny-gradient {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 70% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+
+
 
 @layer base {
   * {
