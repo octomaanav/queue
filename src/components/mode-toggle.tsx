@@ -4,17 +4,25 @@ import { useTheme } from "next-themes"
 import React from "react"
 import { Button } from "./ui/button";
 import { MoonIcon, SunIcon } from "lucide-react";
+import { Tooltip, TooltipProvider, TooltipContent, TooltipTrigger } from "./ui/tooltip";
 
 export default function ModeToggle() {
     const { theme, setTheme } = useTheme();
     return (
-      <Button
-        variant="ghost"
-        size="icon"
-        onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-        >
-        <SunIcon className="h-[1.2rem] w-[1.2rem] text-neutral-800 dark:hidden dark:text-neutral-200" />
-        <MoonIcon className="hidden h-[1.2rem] w-[1.2rem] text-neutral-800 dark:block dark:text-neutral-200" />
-      </Button>
+      <TooltipProvider>
+        <Tooltip>
+          <TooltipTrigger asChild>
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+            >
+            <MoonIcon className="h-[1.2rem] w-[1.2rem] text-neutral-800 dark:hidden dark:text-neutral-200" />
+            <SunIcon className="hidden h-[1.2rem] w-[1.2rem] text-neutral-800 dark:block dark:text-neutral-200" />
+          </Button>
+          </TooltipTrigger>
+          <TooltipContent className="font-semibold">Change Theme</TooltipContent>
+        </Tooltip>
+      </TooltipProvider>
     )
 }

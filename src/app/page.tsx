@@ -2,7 +2,8 @@
 // import Image from "next/image";
 
 import { ShinyText } from "@/components/shiny-text";
-import { Button } from "@/components/ui/button";
+import { Button } from "../components/ui/button";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuShortcut, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 
 // export default function Home() {
 //   return (
@@ -68,7 +69,8 @@ export default function Home() {
         </p>
       </div>
       <div className="flex gap-4">
-        <Button variant={"outline"} className="font-semibold">Join the Queue</Button>
+      
+    <Button variant={"outline"} className="font-semibold">Join the Queue</Button>
       </div>
     </main>
   )
