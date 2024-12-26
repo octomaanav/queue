@@ -11,9 +11,13 @@ export default {
   	extend: {
 		animation: {
 			"shiny-text": "shiny-text 10s infinite",
+			"blicking-dot": "blinking-dot 1.5s infinite"
 		  },
 		  keyframes: {
-			
+			"blinking-dot": {
+				'0%, 100%': { transform: 'scale(0.8)' },
+				'50%': { transform: 'scale(1.2)' },
+			},
 			"shiny-text": {
 			  "0%, 90%, 100%": {
 				"background-position": "calc(-100% - var(--shiny-width)) 0",
