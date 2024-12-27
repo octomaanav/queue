@@ -1,5 +1,4 @@
 import { CourseCard } from '@/components/course-card';
-import { main } from 'framer-motion/client';
 import React from 'react';
 import {DATA} from '../../../data/data'
 

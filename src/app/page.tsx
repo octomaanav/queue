@@ -5,11 +5,10 @@ import { Button } from "../components/ui/button";
 import { useRouter } from "next/navigation";
 
 export default function Home() {
-
   const router = useRouter();
-  
+
   const handleClick = async () => {
-    router.push("/dashboard")
+    router.push("/dashboard");
   };
   return (
     <main className="flex flex-col items-center justify-center pt-[9rem]">
