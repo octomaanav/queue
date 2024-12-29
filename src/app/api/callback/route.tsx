@@ -37,11 +37,20 @@ export async function GET(request: NextRequest) {
         const tokenData = await tokenResponse.json();
         const accessToken = tokenData.access_token;
 
-        
-        const response = NextResponse.redirect('/dashboard'); // Redirect to dashboard after successful login
-        response.cookies.set('access_token', accessToken, { httpOnly: true, secure: true, path: '/', maxAge: 3600 });
+        const userInfo = await fetch(process.env.AUTOLAB_USER_ENDPOINT || '', {
+            headers:{
+                Authorization: `Bearer ${accessToken}`,
+            }
+        })
 
-        return response;
+        if(!userInfo.ok){
+            const error = await userInfo.json();
+            return NextResponse.json({ error: "Error while getting user info", details:error}, { status: 500 });
+        }
+
+        const userData = await userInfo.json();
+        console.log("userData", userData);
+        return NextResponse.json({ userData });
 
 
         
