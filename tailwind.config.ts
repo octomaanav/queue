@@ -9,26 +9,29 @@ export default {
   ],
   theme: {
   	extend: {
-		animation: {
-			"shiny-text": "shiny-text 10s infinite",
-			"blicking-dot": "blinking-dot 1.5s infinite"
-		  },
-		  keyframes: {
-			"blinking-dot": {
-				'0%, 100%': { transform: 'scale(0.8)' },
-				'50%': { transform: 'scale(1.2)' },
-			},
-			"shiny-text": {
-			  "0%, 90%, 100%": {
-				"background-position": "calc(-100% - var(--shiny-width)) 0",
-			  },
-			  "30%, 60%": {
-				"background-position": "calc(100% + var(--shiny-width)) 0",
-			  },
-			},
-		  },
+  		animation: {
+  			'shiny-text': 'shiny-text 10s infinite',
+  			'blicking-dot': 'blinking-dot 1.5s infinite'
+  		},
+  		keyframes: {
+  			'blinking-dot': {
+  				'0%, 100%': {
+  					transform: 'scale(0.8)'
+  				},
+  				'50%': {
+  					transform: 'scale(1.2)'
+  				}
+  			},
+  			'shiny-text': {
+  				'0%, 90%, 100%': {
+  					'background-position': 'calc(-100% - var(--shiny-width)) 0'
+  				},
+  				'30%, 60%': {
+  					'background-position': 'calc(100% + var(--shiny-width)) 0'
+  				}
+  			}
+  		},
   		colors: {
-			
   			background: 'hsl(var(--background))',
   			foreground: 'hsl(var(--foreground))',
   			card: {
@@ -68,6 +71,16 @@ export default {
   				'3': 'hsl(var(--chart-3))',
   				'4': 'hsl(var(--chart-4))',
   				'5': 'hsl(var(--chart-5))'
+  			},
+  			sidebar: {
+  				DEFAULT: 'hsl(var(--sidebar-background))',
+  				foreground: 'hsl(var(--sidebar-foreground))',
+  				primary: 'hsl(var(--sidebar-primary))',
+  				'primary-foreground': 'hsl(var(--sidebar-primary-foreground))',
+  				accent: 'hsl(var(--sidebar-accent))',
+  				'accent-foreground': 'hsl(var(--sidebar-accent-foreground))',
+  				border: 'hsl(var(--sidebar-border))',
+  				ring: 'hsl(var(--sidebar-ring))'
   			}
   		},
   		borderRadius: {
