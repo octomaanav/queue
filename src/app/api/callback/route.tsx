@@ -1,7 +1,5 @@
 'use server'
 
-import { a } from "framer-motion/client";
-import { console } from "inspector";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(request: NextRequest) {
@@ -37,20 +35,16 @@ export async function GET(request: NextRequest) {
         const tokenData = await tokenResponse.json();
         const accessToken = tokenData.access_token;
 
-        const userInfo = await fetch(process.env.AUTOLAB_USER_ENDPOINT || '', {
-            headers:{
-                Authorization: `Bearer ${accessToken}`,
-            }
+        
+        const response = NextResponse.redirect('https://localhost:3000/dashboard');
+        response.cookies.set("accessToken", accessToken, {
+            maxAge: 60*60*20,
+            httpOnly: true,
+            secure: process.env.NODE_ENV === "production",
+            path: "/"
         })
+        return response;
 
-        if(!userInfo.ok){
-            const error = await userInfo.json();
-            return NextResponse.json({ error: "Error while getting user info", details:error}, { status: 500 });
-        }
-
-        const userData = await userInfo.json();
-        console.log("userData", userData);
-        return NextResponse.json({ userData });
 
 
         
