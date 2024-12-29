@@ -12,7 +12,15 @@ export async function GET(request: NextRequest) {
             return NextResponse.json({ message: "No access token found" }, { status: 400 });
         }
 
-        return NextResponse.json({ accessToken });
+        const response = await fetch("https://autolab.cse.buffalo.edu/api/v1/user", {
+            headers:{
+                Authorization: `Bearer ${accessToken.value}`
+            }
+        });
+
+        const userData = await response.json();
+        return NextResponse.json(userData);
+
     } catch (error) {
         return NextResponse.json({ error: 'Error occurred while retrieving access token', details: error }, { status: 500 });
     }

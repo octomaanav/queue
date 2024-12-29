@@ -34,7 +34,6 @@ export async function GET(request: NextRequest) {
 
         const tokenData = await tokenResponse.json();
         const accessToken = tokenData.access_token;
-
         
         const response = NextResponse.redirect('https://localhost:3000/dashboard');
         response.cookies.set("accessToken", accessToken, {
@@ -42,13 +41,9 @@ export async function GET(request: NextRequest) {
             httpOnly: true,
             secure: process.env.NODE_ENV === "production",
             path: "/"
-        })
+        });
         return response;
-
-
-
-        
-}
+    }
 
     catch(error){
         return NextResponse.json({ error: "Error occurred while getting authentication code", details : error }, { status: 500 });
