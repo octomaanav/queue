@@ -12,7 +12,7 @@ interface CourseCardProps {
 export const CourseCard: React.FC<CourseCardProps> = ({ courseName, description, instructor, officeHours }) => {
     return (
         <div className="w-full lg:w-[350px]">
-            <Card>
+            <Card className='shadow-lg'>
                 <CardHeader className="flex flex-col space-y-1.5 p-4">
                     <CardTitle className="flex justify-between">
                         <h1>{courseName}</h1>

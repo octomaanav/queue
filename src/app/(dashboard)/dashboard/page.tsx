@@ -3,68 +3,92 @@
 import { CourseCard } from '@/components/course-card';
 import React, { useEffect } from 'react';
 import {DATA} from '../../../../data/data'
+import { Skeleton } from '@/components/ui/skeleton';
+
+interface UserCourse{
+  auth_level:string,
+  display_name:string,
+  name:string,
+}
 
 
 export default function Dashboard() {
-  const [accessToken, setAccessToken] = React.useState<string | null>(null);
+  const [userInfo, setUserInfo] = React.useState(null);
+  const [userCourses, setUserCourses] = React.useState<UserCourse[]>([]);
+  const [loading, setLoading] = React.useState(true);
   
   useEffect(() =>{
-    const fetchAccessToken = async () => {
+    const fetchUserData = async () => {
       try{
-        const response = await fetch("/api/token");
+        const response = await fetch("/api/user");
         if(!response.ok){
           throw new Error("Error while fetching user data");
         }
         const userData = await response.json();
-        setAccessToken(userData);
+        setUserInfo(userData);
 
     }catch(error){
       console.error("Error while getting user data", error);
     }
   }
-    fetchAccessToken();
+  fetchUserData();
   },[])
 
-  console.log(accessToken);
+  useEffect(() => {
+    const fetchUserCourses = async () => {
+      try{
+        setLoading(true);
+        const response = await fetch("/api/course");
+        if(!response.ok){
+          throw new Error("Error while fetching user courses");
+        }
 
-  // useEffect(() => {
-  //   const fetchUserToken = async () => {
-  //     try{
-  //       const response = await fetch("https://autolab.cse.buffalo.edu/api/v1/user", {
-  //         headers:{
-  //             Authorization: `Bearer ${accessToken}`
-  //         }
-  //       })
-  //       if(!response.ok){
-  //         throw new Error("Error while getting user data");
-  //       }
-  //       const userData = await response.json();
-  //       console.log(userData);
-  //     }catch(error){
-  //       console.error("Error while fetching user data", error);
-  //   }
-  // }
-  //   fetchUserToken();
-  // },[accessToken])
+        const courseData = await response.json();
+        setUserCourses(courseData);
+      }catch(error){
+        console.error("Error while getting user courses", error);
+    }finally{
+      setLoading(false);
+    }
+  }
+  fetchUserCourses();
+  },[])
 
+  console.log(userInfo);
+  console.log(userCourses);
+
+  const renderSkeletons = () => {
+    return Array.from({ length: 6 }).map((i, index) => (
+      <div key={index} className="flex flex-col space-y-2 w-full lg:w-[350px]">
+        <Skeleton className="h-[125px] w-full rounded-xl lg:w-[350px]" />
+        <Skeleton className="h-4 w-[80%]" />
+        <Skeleton className="h-4 w-[60%]" />
+      </div>
+    ));
+  };
 
   return (
     <main className='px-10 py-5'>
         <h1 className='text-4xl font-bold mb-4'>Dashboard</h1>
         <div className='flex flex-wrap gap-4'>
-            {DATA.map((course) => {
+        {loading?
+        renderSkeletons()
+        : userCourses.length > 0 ? 
+        userCourses.map((course) => {
                 return(
                     <CourseCard 
-                    key={course.id}
-                    courseName={course.courseName}
-                    description={course.description}
-                    instructor={course.instructor}
-                    officeHours={course.officeHours}
+                    key={course.name}
+                    courseName={course.display_name}
+                    description={"Very good course"}
+                    instructor={course.auth_level == "instructor" ? true : false}
+                    officeHours={5}
                     />
                 )
-            })}
+            })
+          :
+          <h1 className='mx-auto mt-[10rem] text-3xl font-semibold'>You don't have any current courses!</h1>
+          }
         </div>
-
     </main>
   );
 }

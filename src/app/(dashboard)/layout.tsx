@@ -26,6 +26,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   
+  
   return (
     <html lang="en" suppressHydrationWarning>
       <body
@@ -39,7 +40,7 @@ export default function RootLayout({
         >
           <SidebarProvider>
             <AppSidebar />
-          <main className="py-4 px-4">
+          <main className="py-4 px-4 w-full h-dvh">
             <SidebarTrigger/>
             {children}
           </main>

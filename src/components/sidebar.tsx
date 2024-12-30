@@ -1,56 +1,109 @@
 'use client'
 
-import { Calendar, Home, Inbox, Search, Settings } from "lucide-react"
-
+import { ListEnd, Home, MessageSquareQuote, UserRoundPen } from "lucide-react"
+import LOGO from "../../public/next.svg"
 import {
   Sidebar,
   SidebarContent,
   SidebarGroup,
   SidebarGroupContent,
   SidebarGroupLabel,
+  SidebarHeader,
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar"
+import Image from "next/image"
+import React, { useEffect } from "react"
+import { div } from "framer-motion/client"
+import { Skeleton } from "./ui/skeleton"
 
+interface UserCourse{
+  auth_level:string,
+  display_name:string,
+  name:string,
+}
 
-const items = [
+const menu_items = [
   {
-    title: "Home",
+    title: "Dashboard",
     url: "#",
     icon: Home,
   },
   {
-    title: "Inbox",
+    title: "Queue",
     url: "#",
-    icon: Inbox,
+    icon: ListEnd,
   },
   {
-    title: "Calendar",
+    title: "Feedback",
     url: "#",
-    icon: Calendar,
+    icon: MessageSquareQuote,
   },
   {
-    title: "Search",
+    title: "Profile",
     url: "#",
-    icon: Search,
-  },
-  {
-    title: "Settings",
-    url: "#",
-    icon: Settings,
+    icon: UserRoundPen,
   },
 ]
 
 export function AppSidebar() {
+  const [courses, setCourses] = React.useState<UserCourse[]>([]);
+  const [loading, setLoading] = React.useState(true);
+
+  useEffect(()=>{
+    const fetchCourses = async () => {
+      try{
+        setLoading(true);
+        const response = await fetch("/api/course");
+        if(!response.ok){
+          throw new Error("Error while fetching user courses");
+        }
+
+        const courseData = await response.json();
+        setCourses(courseData);
+      }catch(error){
+        console.error("Error while getting user courses", error);
+    }finally{
+      setLoading(false);
+    }
+  }
+    fetchCourses();
+  },[])
+
+  // const renderCourseSkeleton = () => {
+  //   return Array.from({length:3}).map((_, index) => (
+  //     <div key={index} className="flex items-center justify-between p-2">
+  //       <Skeleton className="w-1/2" />
+  //     </div>
+  //   ))
+  // }
+  const renderCourseSkeleton = () => {
+      return Array.from({ length: 6 }).map((i, index) => (
+          <div key={index} className="flex flex-col space-y-2 w-full lg:w-[350px]">
+            <Skeleton className="h-2 w-full rounded-xl lg:w-[350px]" />
+          </div>
+      ));
+    };
+
   return (
     <Sidebar>
-      <SidebarContent>
+      <SidebarHeader>
+      <Image
+            src={LOGO}
+            alt="NextUp"
+            width={100}
+            height={100}
+            layout="intrinsic" // Ensure intrinsic size
+            className="object-contain" // Ensures the image fills only its intrinsic bounds
+          />
+      </SidebarHeader>
+      <SidebarContent className="">
         <SidebarGroup>
-          <SidebarGroupLabel>Application</SidebarGroupLabel>
+          <SidebarGroupLabel className="text-sm font-semibold">Menu</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {items.map((item) => (
+              {menu_items.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild>
                     <a href={item.url}>
@@ -60,6 +113,26 @@ export function AppSidebar() {
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               ))}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+        <SidebarGroup>
+        {courses.length > 0 ? <SidebarGroupLabel className="text-sm font-semibold">Courses</SidebarGroupLabel> : null}
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {loading 
+              ? renderCourseSkeleton() :
+              courses 
+              ? courses.map((item) => (
+                <SidebarMenuItem key={item.name}>
+                  <SidebarMenuButton asChild>
+                    <a href={"/"}>
+                      <span>{item.display_name}</span>
+                    </a>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ))
+            : null}
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
