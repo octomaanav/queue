@@ -34,17 +34,18 @@ export async function POST(req: NextRequest) {
         const userData = await autolabResponse.json();
 
         const jwtPayload = {
-            sub : userData.email,
+            sub: userData.email,
             email: userData.email,
+            phone: "",
             aud: "authenticated",
-            role:"authenticated",
-            iat: Math.floor(Date.now() / 1000),
-            exp: Math.floor(Date.now() / 1000) + 7200,
+            role: "authenticated",
+            iat: Math.floor(Date.now() / 1000), // Issued at time (Unix timestamp)
+            exp: Math.floor(Date.now() / 1000) + 7200, // 2 hours
             aal: "aal1",
-            session_id: crypto.randomUUID()
-        }
+            session_id: crypto.randomUUID(),
+          };
 
-        const supabase_jwt = jwt.sign(jwtPayload,process.env.SUPABASE_SECRET_KEY || '', { algorithm: 'HS256' });
+        const supabase_jwt = jwt.sign(jwtPayload,process.env.JWT_SECRET|| '');
 
         return NextResponse.json({supabase_jwt});
 

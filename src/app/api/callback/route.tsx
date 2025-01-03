@@ -2,7 +2,8 @@
 
 import { NextRequest, NextResponse } from "next/server";
 import { pushUserToDataBase } from "@/lib/supabase/userHelper";
-// import { initializeSupabaseClient, fetchSupabaseJWT, initialize, getSupabaseClient } from "../../../../supabase";
+// import { supabase } from "../../../../supabase";
+import { initializeSupabaseClient, fetchSupabaseJWT, initialize, getSupabaseClient } from "../../../../supabase";
 
 export async function GET(request: NextRequest) {
     try{
@@ -48,6 +49,20 @@ export async function GET(request: NextRequest) {
 
         const userData = await userResponse.json();
 
+        // const jwt = await fetchSupabaseJWT({access_token});
+
+        // return NextResponse.json({jwt}, { status: 200 });
+
+        await initialize({access_token});
+        const supabase = getSupabaseClient();
+
+        if (!supabase) {
+            return NextResponse.json({ error: "Supabase client is not initialized" }, { status: 500 });
+        }
+        const {data, error} = await supabase.from('users').select('*');
+        return NextResponse.json({data, error}, { status: 200 });
+
+
         // await initialize({access_token});
 
         // const supabase = getSupabaseClient();
@@ -55,7 +70,8 @@ export async function GET(request: NextRequest) {
 
         await pushUserToDataBase({
             name: `${userData.first_name} ${userData.last_name}`,
-            email: userData.email
+            email: userData.email,
+            access_token
         });
 
         
