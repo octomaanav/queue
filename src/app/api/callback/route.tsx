@@ -1,13 +1,13 @@
 'use server'
 
 import { NextRequest, NextResponse } from "next/server";
+import { pushUserToDataBase } from "@/lib/supabase/userHelper";
+// import { initializeSupabaseClient, fetchSupabaseJWT, initialize, getSupabaseClient } from "../../../../supabase";
 
 export async function GET(request: NextRequest) {
     try{
         const { searchParams } = new URL(request.url);
         const code = searchParams.get("code");
-
-        console.log("code", code);
 
         if(!code){
             return NextResponse.json({ message: "No code received" }, { status: 400 });
@@ -33,10 +33,34 @@ export async function GET(request: NextRequest) {
         }
 
         const tokenData = await tokenResponse.json();
-        const accessToken = tokenData.access_token;
+        const access_token = tokenData.access_token;
+
+        const userResponse = await fetch(process.env.AUTOLAB_USER_ENDPOINT || '', {
+            headers:{
+                Authorization: `Bearer ${access_token}`
+            }
+        })
+
+        if(!userResponse.ok){
+            const error = await userResponse.json();
+            return NextResponse.json({ error: "Error while getting user data", details:error}, { status: 500 });
+        }
+
+        const userData = await userResponse.json();
+
+        // await initialize({access_token});
+
+        // const supabase = getSupabaseClient();
+
+
+        await pushUserToDataBase({
+            name: `${userData.first_name} ${userData.last_name}`,
+            email: userData.email
+        });
+
         
         const response = NextResponse.redirect('https://localhost:3000/dashboard');
-        response.cookies.set("accessToken", accessToken, {
+        response.cookies.set("accessToken", access_token, {
             maxAge: 60*60*20,
             httpOnly: true,
             secure: process.env.NODE_ENV === "production",

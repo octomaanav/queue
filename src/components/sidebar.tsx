@@ -1,6 +1,6 @@
 'use client'
 
-import { ListEnd, Home, MessageSquareQuote, UserRoundPen } from "lucide-react"
+import { ListEnd, Home, MessageSquareQuote, UserRoundPen, Book, BookOpen } from "lucide-react"
 import LOGO from "../../public/next.svg"
 import {
   Sidebar,
@@ -71,35 +71,27 @@ export function AppSidebar() {
     fetchCourses();
   },[])
 
-  // const renderCourseSkeleton = () => {
-  //   return Array.from({length:3}).map((_, index) => (
-  //     <div key={index} className="flex items-center justify-between p-2">
-  //       <Skeleton className="w-1/2" />
-  //     </div>
-  //   ))
-  // }
   const renderCourseSkeleton = () => {
       return Array.from({ length: 6 }).map((i, index) => (
-          <div key={index} className="flex flex-col space-y-2 w-full lg:w-[350px]">
-            <Skeleton className="h-2 w-full rounded-xl lg:w-[350px]" />
-          </div>
+        <Skeleton key={index} className="h-7 rounded-sm" />
       ));
     };
 
   return (
     <Sidebar>
       <SidebarHeader>
-      <Image
+        <h1 className="text-center py-2 font-bold">Next Up</h1>
+      {/* <Image
             src={LOGO}
             alt="NextUp"
             width={100}
             height={100}
             layout="intrinsic" // Ensure intrinsic size
             className="object-contain" // Ensures the image fills only its intrinsic bounds
-          />
+          /> */}
       </SidebarHeader>
-      <SidebarContent className="">
-        <SidebarGroup>
+      <SidebarContent className="px-1">
+        <SidebarGroup >
           <SidebarGroupLabel className="text-sm font-semibold">Menu</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
@@ -121,12 +113,15 @@ export function AppSidebar() {
           <SidebarGroupContent>
             <SidebarMenu>
               {loading 
-              ? renderCourseSkeleton() :
-              courses 
+              ? <div className="flex flex-col space-y-2">
+                {renderCourseSkeleton()}
+                </div>
+              : courses 
               ? courses.map((item) => (
                 <SidebarMenuItem key={item.name}>
                   <SidebarMenuButton asChild>
                     <a href={"/"}>
+                      <BookOpen />
                       <span>{item.display_name}</span>
                     </a>
                   </SidebarMenuButton>

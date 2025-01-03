@@ -54,9 +54,6 @@ export default function Dashboard() {
   fetchUserCourses();
   },[])
 
-  console.log(userInfo);
-  console.log(userCourses);
-
   const renderSkeletons = () => {
     return Array.from({ length: 6 }).map((i, index) => (
       <div key={index} className="flex flex-col space-y-2 w-full lg:w-[350px]">
@@ -79,6 +76,7 @@ export default function Dashboard() {
                     <CourseCard 
                     key={course.name}
                     courseName={course.display_name}
+                    courseCodeName={course.name}
                     description={"Very good course"}
                     instructor={course.auth_level == "instructor" ? true : false}
                     officeHours={5}

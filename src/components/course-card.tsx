@@ -1,15 +1,17 @@
 import React from 'react';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from './ui/card';
 import { Button } from './ui/button';
+import Link from 'next/link';
 
 interface CourseCardProps {
     courseName: string;
     description: string;
     instructor: boolean;
     officeHours: number;
+    courseCodeName: string;
 }
 
-export const CourseCard: React.FC<CourseCardProps> = ({ courseName, description, instructor, officeHours }) => {
+export const CourseCard: React.FC<CourseCardProps> = ({ courseName, description, instructor, officeHours, courseCodeName }) => {
     return (
         <div className="w-full lg:w-[350px]">
             <Card className='shadow-lg'>
@@ -41,9 +43,11 @@ export const CourseCard: React.FC<CourseCardProps> = ({ courseName, description,
                     </div>
                 </CardContent>
                 <CardFooter className="px-4 pb-4">
-                    <Button variant="outline" className="w-full font-bold">
-                        View Office Hour
-                    </Button>
+                    <Link className='w-full font-bold' href={{ pathname: `/courses/${courseCodeName}`, query: { course: courseName } }}>
+                        <Button variant="outline" className="w-full font-bold">
+                            View Office Hour
+                        </Button>
+                    </Link>
                 </CardFooter>
             </Card>
         </div>

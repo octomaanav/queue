@@ -1,32 +1,17 @@
-import { i } from "framer-motion/client";
-
 export const DATA = [
     {
-        id: 1,
-        courseName: "CSE 115: Intro to Programming I",
-        description: "This course is an introduction to programming using Python.",
-        instructor: true,
-        officeHours: 5,
+        "id": 1,
+        "location": "Davis Carl's Corner",
+        "start_time": "2024-12-30 08:00:00",
+        "end_time": "2024-12-30 09:00:00",
+        "instructors": ["Manav", "Amit"]
     },
     {
-        id: 2,
-        courseName: "CSE 220: Systems Programming",
-        description: "An in-depth study of system-level programming in C.",
-        instructor: false,
-        officeHours: 0,
+        "id": 2,
+        "location": "Smith Hall Room 101",
+        "start_time": "2024-12-31 09:30:00",
+        "end_time": "2024-12-31 10:30:00",
+        "instructors": ["Sara", "John"]
     },
-    {
-        id: 3,
-        courseName: "CSE 250: Data Structures and Algorithms",
-        description: "Explores fundamental data structures and algorithm design techniques.",
-        instructor: false,
-        officeHours: 4,
-    },
-    {
-        id: 4,
-        courseName: "CSE 116: Intro to Programming II",
-        description: "This course is an introduction to object-oriented programming using Java.",
-        instructor: true,
-        officeHours: 6,
-    },
-];
+    
+]
