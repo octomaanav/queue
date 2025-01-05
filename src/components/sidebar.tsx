@@ -61,7 +61,8 @@ export function AppSidebar() {
         }
 
         const courseData = await response.json();
-        setCourses(courseData);
+        setCourses(Array.isArray(courseData) ? courseData : []);
+
       }catch(error){
         console.error("Error while getting user courses", error);
     }finally{
@@ -116,7 +117,7 @@ export function AppSidebar() {
               ? <div className="flex flex-col space-y-2">
                 {renderCourseSkeleton()}
                 </div>
-              : courses 
+              : Array.isArray(courses) && courses.length > 0
               ? courses.map((item) => (
                 <SidebarMenuItem key={item.name}>
                   <SidebarMenuButton asChild>

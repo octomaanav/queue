@@ -11,8 +11,8 @@ export default function CoursePage() {
     const course = params?.course;
 
     return (
-        <div className="container mx-auto py-10">
-      <OfficeHoursTable columns={columns} data={DATA} />
-    </div>
+      <div className="container mx-auto py-10">
+        <h1>{course}</h1>
+      </div>
     );
 }

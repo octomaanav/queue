@@ -2,8 +2,7 @@
 
 import { NextRequest, NextResponse } from "next/server";
 import { pushUserToDataBase } from "@/lib/supabase/userHelper";
-// import { supabase } from "../../../../supabase";
-import { initializeSupabaseClient, fetchSupabaseJWT, initialize, getSupabaseClient } from "../../../../supabase";
+import { getUserCourses, getUserInfo } from "@/lib/user_info/getUserInfo";
 
 export async function GET(request: NextRequest) {
     try{
@@ -36,45 +35,21 @@ export async function GET(request: NextRequest) {
         const tokenData = await tokenResponse.json();
         const access_token = tokenData.access_token;
 
-        const userResponse = await fetch(process.env.AUTOLAB_USER_ENDPOINT || '', {
-            headers:{
-                Authorization: `Bearer ${access_token}`
-            }
-        })
+        const userData = await getUserInfo({access_token});
 
-        if(!userResponse.ok){
-            const error = await userResponse.json();
-            return NextResponse.json({ error: "Error while getting user data", details:error}, { status: 500 });
+        const user_courses = await getUserCourses({access_token});
+
+        if(!user_courses){
+            return NextResponse.json({ error: "Error while fetching user courses" }, { status: 500 });
         }
 
-        const userData = await userResponse.json();
-
-        // const jwt = await fetchSupabaseJWT({access_token});
-
-        // return NextResponse.json({jwt}, { status: 200 });
-
-        await initialize({access_token});
-        const supabase = getSupabaseClient();
-
-        if (!supabase) {
-            return NextResponse.json({ error: "Supabase client is not initialized" }, { status: 500 });
-        }
-        const {data, error} = await supabase.from('users').select('*');
-        return NextResponse.json({data, error}, { status: 200 });
-
-
-        // await initialize({access_token});
-
-        // const supabase = getSupabaseClient();
-
-
-        await pushUserToDataBase({
+        const userId = await pushUserToDataBase({
             name: `${userData.first_name} ${userData.last_name}`,
             email: userData.email,
             access_token
         });
 
-        
+
         const response = NextResponse.redirect('https://localhost:3000/dashboard');
         response.cookies.set("accessToken", access_token, {
             maxAge: 60*60*20,
@@ -82,6 +57,7 @@ export async function GET(request: NextRequest) {
             secure: process.env.NODE_ENV === "production",
             path: "/"
         });
+
         return response;
     }
 

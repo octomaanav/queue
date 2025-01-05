@@ -2,21 +2,18 @@ import {createClient, SupabaseClient} from '@supabase/supabase-js'
 import { NextResponse } from 'next/server'
 import { cookies } from 'next/headers'
 
-// export const supabase = createClient(process.env.SUPABASE_URL || '', process.env.SUPABASE_KEY || '')
-
 let supabase: SupabaseClient | null = null;
 
 export async function fetchSupabaseJWT({access_token} : {access_token : string}){
     
     try{
         const cookieStore = await cookies();
-        // const supabase_jwt = cookieStore.get("supabase_jwt");
-        // const supabase_jwt_expiry = cookieStore.get("supabase_jwt_expiry");
-        // if(supabase_jwt && supabase_jwt_expiry && Date.now() < parseInt(supabase_jwt_expiry.value)){
-        //     return supabase_jwt.value
-        // }
+        const supabase_jwt = cookieStore.get("supabase_jwt");
+        const supabase_jwt_expiry = cookieStore.get("supabase_jwt_expiry");
+        if(supabase_jwt && supabase_jwt_expiry && Date.now() < parseInt(supabase_jwt_expiry.value)){
+            return supabase_jwt.value
+        }
     
-
         const jwtResponse = await fetch("https://localhost:3000/api/jwt",{
             method: "POST",
             headers:{
@@ -24,14 +21,6 @@ export async function fetchSupabaseJWT({access_token} : {access_token : string})
             },
             body: JSON.stringify({access_token})
         })
-
-        // const jwtResponse = await fetch("http://localhost:3001/generate-jwt", {
-        //     method: "POST",
-        //     headers: {
-        //         "Content-Type": "application/json"
-        //     },
-        //     body: JSON.stringify({ access_token })
-        // });
 
         
         if(!jwtResponse.ok){
@@ -97,10 +86,9 @@ export async function initializeSupabaseClient({jwt_token} : {jwt_token : string
 
 
 export async function initialize({ access_token }: { access_token: string }) {
-    // if (supabase) {
-    //   return supabase;
-    // }
-  
+    if (supabase) {
+      return supabase;
+    }
     try {
       const jwtToken = await fetchSupabaseJWT({ access_token });
       const client = await initializeSupabaseClient({ jwt_token: jwtToken });

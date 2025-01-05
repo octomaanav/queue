@@ -2,9 +2,7 @@
 
 import { CourseCard } from '@/components/course-card';
 import React, { useEffect } from 'react';
-import {DATA} from '../../../../data/data'
 import { Skeleton } from '@/components/ui/skeleton';
-
 interface UserCourse{
   auth_level:string,
   display_name:string,
@@ -13,26 +11,8 @@ interface UserCourse{
 
 
 export default function Dashboard() {
-  const [userInfo, setUserInfo] = React.useState(null);
   const [userCourses, setUserCourses] = React.useState<UserCourse[]>([]);
   const [loading, setLoading] = React.useState(true);
-  
-  useEffect(() =>{
-    const fetchUserData = async () => {
-      try{
-        const response = await fetch("/api/user");
-        if(!response.ok){
-          throw new Error("Error while fetching user data");
-        }
-        const userData = await response.json();
-        setUserInfo(userData);
-
-    }catch(error){
-      console.error("Error while getting user data", error);
-    }
-  }
-  fetchUserData();
-  },[])
 
   useEffect(() => {
     const fetchUserCourses = async () => {
@@ -46,13 +26,14 @@ export default function Dashboard() {
         const courseData = await response.json();
         setUserCourses(courseData);
       }catch(error){
-        console.error("Error while getting user courses", error);
+        throw new Error("An error occurred while fetching user courses");
     }finally{
       setLoading(false);
     }
   }
   fetchUserCourses();
   },[])
+
 
   const renderSkeletons = () => {
     return Array.from({ length: 6 }).map((i, index) => (
