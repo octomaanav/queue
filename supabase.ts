@@ -1,3 +1,5 @@
+'use server'
+
 import {createClient, SupabaseClient} from '@supabase/supabase-js'
 import { NextResponse } from 'next/server'
 import { cookies } from 'next/headers'
@@ -85,7 +87,7 @@ export async function initializeSupabaseClient({jwt_token} : {jwt_token : string
 }
 
 
-export async function initialize({ access_token }: { access_token: string }) {
+export const initialize = async ({ access_token }: { access_token: string }) : Promise<SupabaseClient | null> => {
     if (supabase) {
       return supabase;
     }
@@ -93,17 +95,19 @@ export async function initialize({ access_token }: { access_token: string }) {
       const jwtToken = await fetchSupabaseJWT({ access_token });
       const client = await initializeSupabaseClient({ jwt_token: jwtToken });
       if (!client) {
-        return NextResponse.json({ error: "Error while initializing Supabase client" }, { status: 500 });
+        return null;
+        // return NextResponse.json({ error: "Error while initializing Supabase client" }, { status: 500 });
       }
       supabase = client;
-
+      return supabase
     } catch (err) {
-      return NextResponse.json({ error: "Error while initializing Supabase client", details: err }, { status: 500 });
+      return null;
+      // return NextResponse.json({ error: "Error while initializing Supabase client", details: err }, { status: 500 });
     }
   }
 
 
-  export const getSupabaseClient = (): SupabaseClient | null => {
-    return supabase;
-  };
+  // export const getSupabaseClient = async (): Promise<SupabaseClient | null> => {
+  //   return supabase;
+  // };
 

@@ -1,18 +1,122 @@
 'use client';
 
-import { useParams } from 'next/navigation';
+import { getUserCoursesFromCookies } from '@/lib/user_info/getUserInfo';
+import { useParams, useSearchParams, useRouter } from 'next/navigation';
 import { DATA } from '../../../../../data/data';
-import { OfficeHoursTable, columns } from '@/components/office-hours';
+import React, { useEffect } from 'react';
+import { OfficeHoursCard } from '@/components/office-hours';
+import { initialize } from '../../../../../supabase';
+import { getOfficeHoursSchedule } from '@/lib/supabase/userHelper';
+import { Skeleton } from '@/components/ui/skeleton';
+import { h1 } from 'framer-motion/client';
 
 
+interface UserCourse {
+  auth_level: string;
+  display_name: string;
+  name: string;
+}
+
+interface OfficeHours {
+  id: string;
+  location: string;
+  start: number;
+  end: number;
+  day: number
+  instructors: string[];
+}
 
 export default function CoursePage() {
-    const params = useParams();
-    const course = params?.course;
+  const [courses, setCourses] = React.useState<UserCourse[]>([]);
+  const [officeHours, setOfficeHours] = React.useState<OfficeHours[]>([]);
+  const [loading, setLoading] = React.useState(true);
+  const [authorized, setAuthorized] = React.useState(false);
 
+  const params = useParams();
+  const searchParams = useSearchParams();
+  const router = useRouter();
+
+  const courseCode = params?.course;
+  const courseName = searchParams.get('course');
+
+
+  useEffect(() => {
+    const fetchUserCourses = async () => {
+      try {
+        setLoading(true);
+        const user_courses = await getUserCoursesFromCookies();
+        const isAuthorized = user_courses.some((course: UserCourse) => course.name === courseCode && course.display_name === courseName);
+        setAuthorized(isAuthorized);
+        if (isAuthorized) {
+          setCourses(user_courses);
+        } else {
+          router.push('/error');
+        }
+      } catch (error) {
+        console.error("An error occurred while fetching user courses:", error);
+        router.push('/error');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchUserCourses();
+  }, [courseCode, router]);
+
+
+  useEffect(() => {
+    const fetchOfficeHours = async () => {
+      try {
+        setLoading(true);
+        const response  = await fetch("/api/token")
+        if(!response.ok){
+          throw new Error("Error while fetching user courses");
+        }
+        const access_token = await response.json();
+        const schedule = await getOfficeHoursSchedule(access_token);
+        setOfficeHours(schedule);
+      } catch (error) {
+        console.error("An unexpected error occurred:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+  
+    fetchOfficeHours();
+  }, []);
+
+  const renderSkeletons = () => {
+    return Array.from({ length: 6 }).map((i, index) => (
+      <div key={index} className="flex flex-col mb-3 space-y-2 w-full lg:w-[350px]">
+        <Skeleton className="h-[110px] w-full rounded-xl" />
+      </div>
+    ));
+  };
+
+  if (!authorized) {
     return (
       <div className="container mx-auto py-10">
-        <h1>{course}</h1>
+        <h1 className="text-2xl font-bold">Unauthorized</h1>
+        <p className="text-lg">You are not authorized to view this course.</p>
       </div>
     );
+  }
+
+  return (
+    <div className="container mx-auto py-10">
+    {loading ?
+    renderSkeletons()
+    :officeHours.map((OH) => (
+          <OfficeHoursCard
+            key = {OH.id}
+            id={OH.id}
+            location={OH.location}
+            start={OH.start}
+            end={OH.end}
+            day={OH.day}
+            instructors={['Manav','Amit','Thiru']}
+          />
+        ))}
+    </div>
+  );
 }

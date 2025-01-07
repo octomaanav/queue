@@ -9,18 +9,10 @@ export async function GET(request: NextRequest) {
         const accessToken = cookieStore.get("accessToken");
 
         if(!accessToken){
-            return NextResponse.json({ message: "No access token found" }, { status: 400 });
+            return "null"
+            // return NextResponse.json({ message: "No access token found" }, { status: 400 });
         }
-
-        const response = await fetch("https://autolab.cse.buffalo.edu/api/v1/courses?state=completed", {
-            headers:{
-                Authorization: `Bearer ${accessToken.value}`
-            },
-
-        });
-
-        const userCourses = await response.json();
-        return NextResponse.json(userCourses);
+        return NextResponse.json(accessToken.value);
 
     } catch (error) {
         return NextResponse.json({ error: 'Error occurred while retrieving access token', details: error }, { status: 500 });

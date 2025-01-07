@@ -1,92 +1,65 @@
-'use client';
+'use client'
 
-import {
-    ColumnDef,
-    flexRender,
-    getCoreRowModel,
-    useReactTable,
-} from '@tanstack/react-table';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from './ui/table';
+import { CalendarPlus, Clock, Users } from "lucide-react"
+import { Card, CardDescription, CardHeader, CardTitle } from "./ui/card"
+import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar"
+import { Button } from "./ui/button"
+import { Badge } from "./ui/badge"
 
-export type OfficeHours = {
-    id: number,
+interface OfficeHoursCardProps {
+    id: string,
     location: string,
-    start_time: string,
-    end_time: string,
+    start: number,
+    end: number,
+    day: number,
     instructors: string[],
 }
 
-export const columns: ColumnDef<OfficeHours>[] = [
-    {
-        accessorKey: 'location',
-        header: 'Location',
-    },
-    {
-        accessorKey: 'start_time',
-        header: 'Start Time',
-    },
-    {
-        accessorKey: 'end_time',
-        header: 'End Time',
-    },
-    {
-        accessorKey: 'instructors',
-        header: 'Instructors',
-    }
-]
+export const OfficeHoursCard : React.FC<OfficeHoursCardProps> = ({id, location, start, end,day, instructors}) => {
+  const convertTime = (time: number): string => {
+    const hours = Math.floor(time / 100); // Extract hours
+    const minutes = time % 100; // Extract minutes
+    const period = hours >= 12 ? 'PM' : 'AM';
+    const adjustedHours = hours % 12 || 12; // Convert 0 to 12 for midnight
 
-interface OfficeHoursTableProps<Tdata, Tvalue>{
-    columns: ColumnDef<Tdata, Tvalue>[],
-    data: Tdata[],
-}
-
-export function OfficeHoursTable<Tdata,Tvalue>({columns, data}: OfficeHoursTableProps<Tdata, Tvalue>){
-    const table = useReactTable({
-        data,
-        columns,
-        getCoreRowModel: getCoreRowModel()
-    })
+    return `${adjustedHours}:${minutes.toString().padStart(2, '0')} ${period}`;
+};
     return (
-        <div>
-            <Table>
-                <TableHeader className='border-none'>
-                    {table.getHeaderGroups().map((headerGroup) => (
-                        <TableRow className='hover:bg-transparent' key={headerGroup.id}>
-                            {headerGroup.headers.map((header) => {
-                                return(
-                                    <TableHead className='text-md font-semibold' key={header.id}>
-                                        {header.isPlaceholder ? null : flexRender(header.column.columnDef.header,header.getContext())}
-                                    </TableHead>
-                                )
-                            })}
-                        </TableRow>
-                    ))}
-                </TableHeader>
-                <TableBody className='rounded-xl border'>
-                    {table.getRowModel().rows?.length ?
-                    table.getRowModel().rows.map((row) => (
-                        <TableRow
-                            className='h-10'
-                            key={row.id}
-                            data-state={row.getIsSelected() && "selected"}
-                        >
-                        {row.getVisibleCells().map((cell) => (
-                            <TableCell key={cell.id}>
-                                {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                            </TableCell>
-                        ))}
-                        </TableRow>
-                        ))
-                        :(
-                        <TableRow>
-                            <TableCell colSpan={columns.length} className="h-24 text-center">
-                            No results.
-                            </TableCell>
-                        </TableRow>
-                    )}
-                </TableBody>
-            </Table>
-
+        <div className="w-full mb-3">
+        <Card key={id} className="px-4 py-2 hover:shadow-lg transition-shadow duration-300">
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-center space-y-4 md:space-y-0 md:space-x-4">
+            <div className="flex-1">
+              <h2 className="text-xl font-semibold mb-2">{location}</h2>
+              <div className="flex items-center space-x-2 text-sm mb-2">
+                <Clock className="h-4 w-4 text-muted-foreground" />
+                <span className="text-muted-foreground font-semibold">{start} - {end}</span>
+              </div>
+              <div className="flex items-center space-x-2 mb-2">
+                <Users className="h-4 w-4 text-muted-foreground" />
+                <div className="flex space-x-2">
+                  {instructors.map((instructor, index) => (
+                    <Badge className="rounded-full" key={index} variant="secondary">
+                    {instructor}
+                    </Badge>
+                    // <Badge variant="default" key={index} className="text-xs rounded-full px-2 py-0.5">{instructor}</Badge>
+                    // <div key = {index} className="border border-teal-500 bg-teal-500/20 rounded-full font-bold px-2 py-0.5 text-[10px]">
+                    // {instructor}
+                    // </div>
+                  ))}
+                </div>
+              </div>
+              
+            </div>
+            <div className="flex flex-col space-y-2 w-full md:w-auto">
+              <Button className="w-full md:w-auto font-semibold">
+                View the Queue
+              </Button>
+              <Button variant="outline" className="w-full md:w-auto font-semibold">
+                <CalendarPlus className="mr-2 h-4 w-4" /> Add to Calendar
+              </Button>
+            </div>
+          </div>
+        </Card>
         </div>
     )
 }

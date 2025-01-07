@@ -3,6 +3,8 @@
 import { CourseCard } from '@/components/course-card';
 import React, { useEffect } from 'react';
 import { Skeleton } from '@/components/ui/skeleton';
+import { getUserCoursesFromAutolab, getUserCoursesFromCookies } from '@/lib/user_info/getUserInfo';
+import { s } from 'framer-motion/client';
 interface UserCourse{
   auth_level:string,
   display_name:string,
@@ -14,24 +16,42 @@ export default function Dashboard() {
   const [userCourses, setUserCourses] = React.useState<UserCourse[]>([]);
   const [loading, setLoading] = React.useState(true);
 
+  // useEffect(() => {
+  //   const fetchUserCourses = async () => {
+  //     try{
+  //       setLoading(true);
+  //       const response = await fetch("/api/course");
+  //       if(!response.ok){
+  //         throw new Error("Error while fetching user courses");
+  //       }
+
+  //       const courseData = await response.json();
+  //       setUserCourses(courseData);
+  //     }catch(error){
+  //       throw new Error("An error occurred while fetching user courses");
+  //   }finally{
+  //     setLoading(false);
+  //   }
+  // }
+  // fetchUserCourses();
+  // },[])
+
   useEffect(() => {
     const fetchUserCourses = async () => {
       try{
         setLoading(true);
-        const response = await fetch("/api/course");
+        const response = await fetch("/api/token");
         if(!response.ok){
           throw new Error("Error while fetching user courses");
         }
-
-        const courseData = await response.json();
-        setUserCourses(courseData);
+        const user_courses = await getUserCoursesFromCookies();
+        setUserCourses(user_courses);
       }catch(error){
         throw new Error("An error occurred while fetching user courses");
     }finally{
       setLoading(false);
-    }
-  }
-  fetchUserCourses();
+    }}
+    fetchUserCourses();
   },[])
 
 

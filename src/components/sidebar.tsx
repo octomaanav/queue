@@ -17,6 +17,7 @@ import Image from "next/image"
 import React, { useEffect } from "react"
 import { div } from "framer-motion/client"
 import { Skeleton } from "./ui/skeleton"
+import { getUserCoursesFromCookies } from "@/lib/user_info/getUserInfo"
 
 interface UserCourse{
   auth_level:string,
@@ -51,26 +52,39 @@ export function AppSidebar() {
   const [courses, setCourses] = React.useState<UserCourse[]>([]);
   const [loading, setLoading] = React.useState(true);
 
-  useEffect(()=>{
-    const fetchCourses = async () => {
-      try{
-        setLoading(true);
-        const response = await fetch("/api/course");
-        if(!response.ok){
-          throw new Error("Error while fetching user courses");
-        }
+  // useEffect(()=>{
+  //   const fetchCourses = async () => {
+  //     try{
+  //       setLoading(true);
+  //       const response = await fetch("/api/course");
+  //       if(!response.ok){
+  //         throw new Error("Error while fetching user courses");
+  //       }
 
-        const courseData = await response.json();
-        setCourses(Array.isArray(courseData) ? courseData : []);
+  //       const courseData = await response.json();
+  //       setCourses(Array.isArray(courseData) ? courseData : []);
 
-      }catch(error){
-        console.error("Error while getting user courses", error);
-    }finally{
-      setLoading(false);
-    }
-  }
-    fetchCourses();
-  },[])
+  //     }catch(error){
+  //       console.error("Error while getting user courses", error);
+  //   }finally{
+  //     setLoading(false);
+  //   }
+  // }
+  //   fetchCourses();
+  // },[])
+  useEffect(() => {
+      const fetchUserCourses = async () => {
+        try{
+          setLoading(true);
+          const user_courses = await getUserCoursesFromCookies();
+          setCourses(user_courses);
+        }catch(error){
+          throw new Error("An error occurred while fetching user courses");
+      }finally{
+        setLoading(false);
+      }}
+      fetchUserCourses();
+    },[])
 
   const renderCourseSkeleton = () => {
       return Array.from({ length: 6 }).map((i, index) => (

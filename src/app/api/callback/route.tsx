@@ -1,8 +1,9 @@
 'use server'
 
 import { NextRequest, NextResponse } from "next/server";
-import { pushUserToDataBase } from "@/lib/supabase/userHelper";
-import { getUserCourses, getUserInfo } from "@/lib/user_info/getUserInfo";
+import { pushUserToDataBase, getOfficeHoursSchedule } from "@/lib/supabase/userHelper";
+import {getUserCoursesFromAutolab, getUserInfo } from "@/lib/user_info/getUserInfo";
+import {initialize } from "../../../../supabase";
 
 export async function GET(request: NextRequest) {
     try{
@@ -36,27 +37,30 @@ export async function GET(request: NextRequest) {
         const access_token = tokenData.access_token;
 
         const userData = await getUserInfo({access_token});
-
-        const user_courses = await getUserCourses({access_token});
-
-        if(!user_courses){
-            return NextResponse.json({ error: "Error while fetching user courses" }, { status: 500 });
-        }
-
+        
         const userId = await pushUserToDataBase({
             name: `${userData.first_name} ${userData.last_name}`,
             email: userData.email,
             access_token
         });
 
+        const user_courses = await getUserCoursesFromAutolab({access_token});
 
         const response = NextResponse.redirect('https://localhost:3000/dashboard');
+
         response.cookies.set("accessToken", access_token, {
-            maxAge: 60*60*20,
+            maxAge: 60*60*5,
             httpOnly: true,
             secure: process.env.NODE_ENV === "production",
             path: "/"
         });
+
+        response.cookies.set("user_courses", JSON.stringify(user_courses), {
+            maxAge: 60*60*5,
+            httpOnly: true,
+            secure: process.env.NODE_ENV === "production",
+            path: "/"
+        })
 
         return response;
     }

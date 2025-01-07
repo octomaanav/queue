@@ -1,11 +1,12 @@
+'use server'
+
 import {v4 as uuid} from 'uuid';
 import { NextResponse } from "next/server";
-import { initialize, getSupabaseClient } from '../../../supabase';
+import { initialize } from '../../../supabase';
 
 export async function pushUserToDataBase({name, email, access_token}: {name: string, email: string, access_token:string}){
     const userId = uuid();
-    await initialize({access_token});
-    const supabase  = getSupabaseClient();
+    const supabase = await initialize({access_token});
 
     if (!supabase) {
         return NextResponse.json({error: "Supabase client is not initialized"}, {status: 500});
@@ -42,6 +43,32 @@ export async function pushUserToDataBase({name, email, access_token}: {name: str
         return NextResponse.json({error: "Error while adding user to database", details: error}, {status: 500});
     }
 }
+
+export async function getOfficeHoursSchedule(access_token : string){
+    const supabase = await initialize({access_token});
+
+    if (!supabase) {
+        throw new Error("Supabase client is not initialized");
+    }
+
+    try{
+        const {data: officeHoursSchedule, error: scheduleError} = await supabase
+        .from("schedules")
+        .select('*')
+
+        if(scheduleError){
+            throw new Error("Error while fetching office hours schedule");
+        }
+
+        return officeHoursSchedule;
+
+    }catch(error){
+        console.error("Error fetching office hours schedule:", error);
+        throw error;
+    }
+}
+
+const getCourseId = async ({courseName, courseCode, access_token}: {courseName: string, courseCode: string, access_token: string}) => {}
 
 // export async function pushUserCourses({userId, user_courses, access_token}: {access_token: string, userId: string, user_courses: Array<string>}){
 //     const courseId = uuid();
