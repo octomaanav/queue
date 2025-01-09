@@ -1,7 +1,7 @@
 'use server'
 
 import { NextRequest, NextResponse } from "next/server";
-import { pushUserToDataBase, getOfficeHoursSchedule } from "@/lib/supabase/userHelper";
+import { pushUserToDataBase, getOfficeHoursSchedule, getCourseId } from "@/lib/supabase/userHelper";
 import {getUserCoursesFromAutolab, getUserInfo } from "@/lib/user_info/getUserInfo";
 import {initialize } from "../../../../supabase";
 
@@ -46,6 +46,7 @@ export async function GET(request: NextRequest) {
 
         const user_courses = await getUserCoursesFromAutolab({access_token});
 
+
         const response = NextResponse.redirect('https://localhost:3000/dashboard');
 
         response.cookies.set("accessToken", access_token, {
@@ -64,7 +65,6 @@ export async function GET(request: NextRequest) {
 
         return response;
     }
-
     catch(error){
         return NextResponse.json({ error: "Error occurred while getting authentication code", details : error }, { status: 500 });
     }

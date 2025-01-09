@@ -1,10 +1,11 @@
 'use client'
 
-import { ListEnd, Home, MessageSquareQuote, UserRoundPen, Book, BookOpen } from "lucide-react"
+import { ListEnd, Home, MessageSquareQuote, UserRoundPen, Book, BookOpen, ChevronDown, ChevronUp, SquareChevronUp, ChevronsUpDown, History, Bug, LogOut, BadgeAlert, CircleAlert, MoonIcon, SunIcon } from "lucide-react"
 import LOGO from "../../public/next.svg"
 import {
   Sidebar,
   SidebarContent,
+  SidebarFooter,
   SidebarGroup,
   SidebarGroupContent,
   SidebarGroupLabel,
@@ -18,6 +19,11 @@ import React, { useEffect } from "react"
 import { div } from "framer-motion/client"
 import { Skeleton } from "./ui/skeleton"
 import { getUserCoursesFromCookies } from "@/lib/user_info/getUserInfo"
+import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "./ui/dropdown-menu"
+import { Avatar } from "./ui/avatar"
+import { AvatarFallback } from "@radix-ui/react-avatar"
+import { Button } from "./ui/button"
+import { useTheme } from "next-themes"
 
 interface UserCourse{
   auth_level:string,
@@ -51,6 +57,7 @@ const menu_items = [
 export function AppSidebar() {
   const [courses, setCourses] = React.useState<UserCourse[]>([]);
   const [loading, setLoading] = React.useState(true);
+  const { theme, setTheme } = useTheme();
 
   // useEffect(()=>{
   //   const fetchCourses = async () => {
@@ -147,6 +154,56 @@ export function AppSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
+      <SidebarFooter>
+      <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <SidebarMenuButton className="h-10">
+              <div className="dark:bg-slate-800 bg-gray-300 p-1.5 rounded-full">
+                <span className="font-semibold">MS</span>
+              </div>
+              <h1 className="font-semibold">Manav Sharma</h1>
+                <ChevronsUpDown style={{ width: '20px', height: '20px' }} className="ml-auto" />
+            </SidebarMenuButton>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent className="w-[--radix-popper-anchor-width]">
+          <DropdownMenuGroup>
+            {/* <DropdownMenuLabel>
+              <div className="flex items-center gap-2">
+                <div className="bg-slate-800 p-1.5 rounded-full">
+                  <span className="font-semibold">MS</span>
+                </div>
+                <div className="grid flex-1 text-left text-sm leading-tight">
+                  <h1 className="text-[11px]">Manav Sharma</h1>
+                  <p className="text-[10px]">manavsha@buffalo.edu</p>
+                </div>
+              </div>
+            </DropdownMenuLabel>
+            <DropdownMenuSeparator/> */}
+                <DropdownMenuItem>
+                    <MessageSquareQuote/>
+                    Feedback
+                </DropdownMenuItem>
+                <DropdownMenuItem>
+                    <CircleAlert size={16} />
+                    Report Issue
+                </DropdownMenuItem>
+            </DropdownMenuGroup>
+            <DropdownMenuGroup>
+              <DropdownMenuItem onClick={() => setTheme(theme === "dark" ? "light" : "dark")}>
+                {theme === "dark" ? <SunIcon size={16} /> : <MoonIcon size={16} />}
+                Change Theme
+              </DropdownMenuItem>
+            </DropdownMenuGroup>
+            <DropdownMenuSeparator/>
+            <DropdownMenuGroup>
+                <DropdownMenuItem>
+                    <LogOut size={16} />
+                    Log Out
+                </DropdownMenuItem>
+            </DropdownMenuGroup>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </SidebarFooter>
     </Sidebar>
   )
 }

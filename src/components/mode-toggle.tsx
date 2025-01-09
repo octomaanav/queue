@@ -17,8 +17,8 @@ export default function ModeToggle() {
             size="icon"
             onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
             >
-            <MoonIcon className="h-[1.2rem] w-[1.2rem] text-neutral-800 dark:hidden dark:text-neutral-200" />
-            <SunIcon className="hidden h-[1.2rem] w-[1.2rem] text-neutral-800 dark:block dark:text-neutral-200" />
+            <MoonIcon style={{width: "20px",height: "20px"}} className="h-[1.2rem] w-[1.2rem] text-neutral-800 dark:hidden dark:text-neutral-200" />
+            <SunIcon style={{width: "20px",height: "20px"}} className="hidden h-[1.2rem] w-[1.2rem] text-neutral-800 dark:block dark:text-neutral-200" />
           </Button>
           </TooltipTrigger>
           <TooltipContent className="font-semibold">Change Theme</TooltipContent>

@@ -9,6 +9,7 @@ import Link from "next/link"
 import { Avatar, AvatarFallback } from "./ui/avatar"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuShortcut, DropdownMenuTrigger } from "./ui/dropdown-menu"
 import { Bug, History, LogOut, MessageSquareQuote, MessageSquareWarning } from "lucide-react"
+import { div } from "framer-motion/client"
 
 export default function Navbar() {
 
@@ -42,41 +43,13 @@ export default function Navbar() {
                 </Button>
                 :
 
-                <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                        <Button variant={"none"} size={"icon"}>
-                            <Avatar>
-                                <AvatarFallback className="font-semibold">
-                                    MS
-                                </AvatarFallback>
-                            </Avatar>
-                        </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent className="w-[10rem] mr-2">
-                        <DropdownMenuGroup>
-                            <DropdownMenuItem>
-                                <History size={16} />
-                                Queue History
-                            </DropdownMenuItem>
-                            <DropdownMenuItem>
-                                <MessageSquareQuote/>
-                                Feedback
-                            </DropdownMenuItem>
-                            <DropdownMenuItem>
-                                <Bug size={16} />
-                                Report Issue
-                            </DropdownMenuItem>
-                        </DropdownMenuGroup>
-                        <DropdownMenuSeparator/>
-                        <DropdownMenuGroup>
-                            <DropdownMenuItem>
-                                <LogOut size={16} />
-                                Log Out
-                            </DropdownMenuItem>
-                        </DropdownMenuGroup>
-                    </DropdownMenuContent>
-                </DropdownMenu>
-
+                <div>
+                    <Avatar>
+                        <AvatarFallback className="font-semibold">
+                            MS
+                        </AvatarFallback>
+                    </Avatar>
+                </div>
                 }
             </div>
         </nav>

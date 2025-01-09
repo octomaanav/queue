@@ -44,17 +44,22 @@ export async function pushUserToDataBase({name, email, access_token}: {name: str
     }
 }
 
-export async function getOfficeHoursSchedule(access_token : string){
+export async function getOfficeHoursSchedule(access_token : string, courseId : string){
     const supabase = await initialize({access_token});
 
     if (!supabase) {
         throw new Error("Supabase client is not initialized");
     }
 
+    if(courseId == null){
+        throw new Error("Course id is null");
+    }
+
     try{
         const {data: officeHoursSchedule, error: scheduleError} = await supabase
         .from("schedules")
         .select('*')
+        .eq('class', courseId);
 
         if(scheduleError){
             throw new Error("Error while fetching office hours schedule");
@@ -68,7 +73,35 @@ export async function getOfficeHoursSchedule(access_token : string){
     }
 }
 
-const getCourseId = async ({courseName, courseCode, access_token}: {courseName: string, courseCode: string, access_token: string}) => {}
+export const getCourseId = async (courseName : string, courseCode : string, access_token : string) => {
+    const supabase = await initialize({access_token});
+
+    if (!supabase) {
+        throw new Error("Supabase client is not initialized");
+    }
+
+    try{
+        const {data: course, error: courseError} = await supabase
+        .from("classes")
+        .select('id')
+        .eq('name', courseName)
+        .eq('code', courseCode)
+        .single();
+
+        if(course == null){
+            return null
+        }
+
+        if(courseError){
+            throw new Error("Error while fetching course id");
+        }
+
+        return course.id;
+    }catch(error){
+        console.error("Error fetching course id:", error);
+        throw error;
+    }
+}
 
 // export async function pushUserCourses({userId, user_courses, access_token}: {access_token: string, userId: string, user_courses: Array<string>}){
 //     const courseId = uuid();

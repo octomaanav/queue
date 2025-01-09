@@ -6,7 +6,7 @@ import { DATA } from '../../../../../data/data';
 import React, { useEffect } from 'react';
 import { OfficeHoursCard } from '@/components/office-hours';
 import { initialize } from '../../../../../supabase';
-import { getOfficeHoursSchedule } from '@/lib/supabase/userHelper';
+import { getCourseId, getOfficeHoursSchedule } from '@/lib/supabase/userHelper';
 import { Skeleton } from '@/components/ui/skeleton';
 import { h1 } from 'framer-motion/client';
 
@@ -36,7 +36,7 @@ export default function CoursePage() {
   const searchParams = useSearchParams();
   const router = useRouter();
 
-  const courseCode = params?.course;
+  const courseCode: string = params?.course as string;
   const courseName = searchParams.get('course');
 
 
@@ -56,12 +56,11 @@ export default function CoursePage() {
         console.error("An error occurred while fetching user courses:", error);
         router.push('/error');
       } finally {
-        setLoading(false);
       }
     };
 
     fetchUserCourses();
-  }, [courseCode, router]);
+  }, [courseCode, courseName, router]);
 
 
   useEffect(() => {
@@ -73,8 +72,12 @@ export default function CoursePage() {
           throw new Error("Error while fetching user courses");
         }
         const access_token = await response.json();
-        const schedule = await getOfficeHoursSchedule(access_token);
-        setOfficeHours(schedule);
+        if(courseName && courseCode){
+          const courseId = await getCourseId(courseName, courseCode, access_token);
+          const schedule = await getOfficeHoursSchedule(access_token,courseId);
+          setOfficeHours(schedule);
+        }
+        
       } catch (error) {
         console.error("An unexpected error occurred:", error);
       } finally {
@@ -93,14 +96,6 @@ export default function CoursePage() {
     ));
   };
 
-  if (!authorized) {
-    return (
-      <div className="container mx-auto py-10">
-        <h1 className="text-2xl font-bold">Unauthorized</h1>
-        <p className="text-lg">You are not authorized to view this course.</p>
-      </div>
-    );
-  }
 
   return (
     <div className="container mx-auto py-10">
