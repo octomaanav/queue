@@ -16,7 +16,7 @@ import {
 } from "@/components/ui/sidebar"
 import Image from "next/image"
 import React, { useEffect } from "react"
-import { div } from "framer-motion/client"
+import { div, tr } from "framer-motion/client"
 import { Skeleton } from "./ui/skeleton"
 import { getUserCoursesFromCookies } from "@/lib/user_info/getUserInfo"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "./ui/dropdown-menu"
@@ -92,6 +92,24 @@ export function AppSidebar() {
       }}
       fetchUserCourses();
     },[])
+
+  const handleLogOut = async () => {
+    try{
+    const response = await fetch("/api/logout", {
+      method: "POST",
+      headers:{
+        "Content-Type": "application/json"
+      },
+    });
+    if(response.ok){
+      window.location.href = "/";
+    }else{
+      throw new Error("Failed to log out");
+    }
+    }catch(error){
+      throw new Error("Error while logging out");
+    }
+  }
 
   const renderCourseSkeleton = () => {
       return Array.from({ length: 6 }).map((i, index) => (
@@ -196,7 +214,7 @@ export function AppSidebar() {
             </DropdownMenuGroup>
             <DropdownMenuSeparator/>
             <DropdownMenuGroup>
-                <DropdownMenuItem>
+                <DropdownMenuItem onClick={handleLogOut}>
                     <LogOut size={16} />
                     Log Out
                 </DropdownMenuItem>

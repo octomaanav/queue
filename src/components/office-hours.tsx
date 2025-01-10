@@ -28,13 +28,13 @@ export const OfficeHoursCard : React.FC<OfficeHoursCardProps> = ({id, location, 
         <div className="w-full mb-3">
         <Card key={id} className="px-4 py-2 hover:shadow-lg transition-shadow duration-300">
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center space-y-4 md:space-y-0 md:space-x-4">
-            <div className="flex-1">
-              <h2 className="text-xl font-semibold mb-2">{location}</h2>
-              <div className="flex items-center space-x-2 text-sm mb-2">
+            <div className="flex-1 space-y-1">
+              <h2 className="text-xl font-semibold">{location}</h2>
+              <div className="flex items-center space-x-2 text-sm">
                 <Clock className="h-4 w-4 text-muted-foreground" />
                 <span className="text-muted-foreground font-semibold">{start} - {end}</span>
               </div>
-              <div className="flex items-center space-x-2 mb-2">
+              <div className="flex items-center space-x-2">
                 <Users className="h-4 w-4 text-muted-foreground" />
                 <div className="flex space-x-2">
                   {instructors.map((instructor, index) => (

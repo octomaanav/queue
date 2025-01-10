@@ -3,12 +3,13 @@
 import { ShinyText } from "@/components/shiny-text";
 import { Button } from "../../components/ui/button";
 import { useRouter } from "next/navigation";
+import { signIn } from "next-auth/react";
 
 export default function Home() {
   const router = useRouter();
 
   const handleClick = async () => {
-    window.location.href = "/api/login";
+    signIn("autolab")
   };
   return (
     <main className="flex flex-col items-center justify-center pt-[9rem]">

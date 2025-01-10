@@ -50,7 +50,7 @@ export async function getUserCoursesFromCookies(){
     try{
         const cookieStore = await cookies();
         const user_courses = cookieStore.get("user_courses")?.value;
-        const access_token = cookieStore.get("accessToken")?.value;
+        const access_token = cookieStore.get("access_token")?.value;
         if(user_courses){
             return JSON.parse(user_courses);
         }

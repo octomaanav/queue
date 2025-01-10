@@ -39,7 +39,6 @@ export default function CoursePage() {
   const courseCode: string = params?.course as string;
   const courseName = searchParams.get('course');
 
-
   useEffect(() => {
     const fetchUserCourses = async () => {
       try {
@@ -77,7 +76,6 @@ export default function CoursePage() {
           const schedule = await getOfficeHoursSchedule(access_token,courseId);
           setOfficeHours(schedule);
         }
-        
       } catch (error) {
         console.error("An unexpected error occurred:", error);
       } finally {
@@ -95,7 +93,6 @@ export default function CoursePage() {
       </div>
     ));
   };
-
 
   return (
     <div className="container mx-auto py-10">

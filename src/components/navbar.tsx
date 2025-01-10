@@ -1,23 +1,33 @@
 'use client'
 
 import Image from "next/image"
-import React from "react"
+import React, { useEffect } from "react"
 import LOGO from '../../public/logo.png'
 import ModeToggle from "./mode-toggle"
 import { Button } from "./ui/button"
 import Link from "next/link"
 import { Avatar, AvatarFallback } from "./ui/avatar"
-import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuShortcut, DropdownMenuTrigger } from "./ui/dropdown-menu"
-import { Bug, History, LogOut, MessageSquareQuote, MessageSquareWarning } from "lucide-react"
-import { div } from "framer-motion/client"
+import { getAuthStatus } from "@/lib/helper/setAuthStatus"
 
 export default function Navbar() {
-
     const [auth, setAuth] = React.useState(false)
+    const [loading, setLoading] = React.useState(true)
 
-    const handleClick = () =>{
-        setAuth((prevAuth) => !prevAuth)
-    }
+    useEffect(() => {
+        const fetchAuthStatus = async () => {
+            try {
+                const status = await getAuthStatus();
+                setAuth(status === "authorized");
+            } finally {
+                setLoading(false);
+            }
+        }
+        fetchAuthStatus();
+    }, [])
+
+    const handleClick = async () => {
+        window.location.href = "/api/login";
+    };
 
     return (
         <nav className="flex justify-between items-center pr-5 h-20">
@@ -35,22 +45,20 @@ export default function Navbar() {
             
             <div className="flex gap-4 items-center justify-center">
                 <ModeToggle />
-
-                {!auth ? 
-                
-                <Button variant={"secondary"} className="font-semibold font-mono" onClick={handleClick}>
-                    Sign Up
-                </Button>
-                :
-
-                <div>
+                {loading ? (
+                    <></>
+                    // <div className="w-8 h-8 rounded-full bg-gray-300 animate-pulse"></div>
+                ) : auth ? (
                     <Avatar>
                         <AvatarFallback className="font-semibold">
                             MS
                         </AvatarFallback>
                     </Avatar>
-                </div>
-                }
+                ) : (
+                    <Button variant={"secondary"} className="font-semibold font-mono" onClick={handleClick}>
+                        Sign Up
+                    </Button>
+                )}
             </div>
         </nav>
     )

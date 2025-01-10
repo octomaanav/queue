@@ -6,13 +6,13 @@ import { NextRequest, NextResponse } from "next/server";
 export async function GET(request: NextRequest) {
     try{
         const cookieStore = await cookies();
-        const accessToken = cookieStore.get("accessToken");
+        const access_token = cookieStore.get("access_token");
 
-        if(!accessToken){
+        if(!access_token){
             return "null"
             // return NextResponse.json({ message: "No access token found" }, { status: 400 });
         }
-        return NextResponse.json(accessToken.value);
+        return NextResponse.json(access_token.value);
 
     } catch (error) {
         return NextResponse.json({ error: 'Error occurred while retrieving access token', details: error }, { status: 500 });

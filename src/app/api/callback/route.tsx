@@ -4,6 +4,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { pushUserToDataBase, getOfficeHoursSchedule, getCourseId } from "@/lib/supabase/userHelper";
 import {getUserCoursesFromAutolab, getUserInfo } from "@/lib/user_info/getUserInfo";
 import {initialize } from "../../../../supabase";
+import { cookies } from "next/headers";
+import { getAuthStatus, setAuthStatus } from "@/lib/helper/setAuthStatus";
 
 export async function GET(request: NextRequest) {
     try{
@@ -35,6 +37,7 @@ export async function GET(request: NextRequest) {
 
         const tokenData = await tokenResponse.json();
         const access_token = tokenData.access_token;
+        const expire = tokenData.expires_in;
 
         const userData = await getUserInfo({access_token});
         
@@ -44,12 +47,18 @@ export async function GET(request: NextRequest) {
             access_token
         });
 
+
+        // const cookie_Store = await cookies()
+        // const token = cookie_Store.get("access_token")?.value;
+        // return NextResponse.json({ token });
+
         const user_courses = await getUserCoursesFromAutolab({access_token});
 
+        await setAuthStatus("authorized");
 
         const response = NextResponse.redirect('https://localhost:3000/dashboard');
 
-        response.cookies.set("accessToken", access_token, {
+        response.cookies.set("access_token", access_token, {
             maxAge: 60*60*5,
             httpOnly: true,
             secure: process.env.NODE_ENV === "production",
