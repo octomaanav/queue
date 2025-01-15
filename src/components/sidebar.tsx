@@ -1,7 +1,16 @@
 'use client'
 
-import { ListEnd, Home, MessageSquareQuote, UserRoundPen, Book, BookOpen, ChevronDown, ChevronUp, SquareChevronUp, ChevronsUpDown, History, Bug, LogOut, BadgeAlert, CircleAlert, MoonIcon, SunIcon } from "lucide-react"
-import LOGO from "../../public/next.svg"
+import { 
+  ListEnd, 
+  Home, 
+  MessageSquareQuote, 
+  UserRoundPen, 
+  BookOpen, 
+  ChevronsUpDown,
+  LogOut, 
+  CircleAlert, 
+  MoonIcon, 
+  SunIcon } from "lucide-react"
 import {
   Sidebar,
   SidebarContent,
@@ -14,16 +23,12 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar"
-import Image from "next/image"
 import React, { useEffect } from "react"
-import { div, tr } from "framer-motion/client"
 import { Skeleton } from "./ui/skeleton"
-import { getUserCoursesFromCookies } from "@/lib/user_info/getUserInfo"
+import { getUserCoursesFromAutolab } from "@/lib/user_info/getUserInfo"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "./ui/dropdown-menu"
-import { Avatar } from "./ui/avatar"
-import { AvatarFallback } from "@radix-ui/react-avatar"
-import { Button } from "./ui/button"
 import { useTheme } from "next-themes"
+import { useSession } from "next-auth/react"
 
 interface UserCourse{
   auth_level:string,
@@ -59,39 +64,38 @@ export function AppSidebar() {
   const [loading, setLoading] = React.useState(true);
   const { theme, setTheme } = useTheme();
 
-  // useEffect(()=>{
-  //   const fetchCourses = async () => {
-  //     try{
-  //       setLoading(true);
-  //       const response = await fetch("/api/course");
-  //       if(!response.ok){
-  //         throw new Error("Error while fetching user courses");
-  //       }
+  const { data: session, status } = useSession();
 
-  //       const courseData = await response.json();
-  //       setCourses(Array.isArray(courseData) ? courseData : []);
-
-  //     }catch(error){
-  //       console.error("Error while getting user courses", error);
-  //   }finally{
-  //     setLoading(false);
-  //   }
-  // }
-  //   fetchCourses();
-  // },[])
   useEffect(() => {
-      const fetchUserCourses = async () => {
-        try{
-          setLoading(true);
-          const user_courses = await getUserCoursesFromCookies();
+    const fetchUserCourses = async () => {
+      try {
+        setLoading(true);
+        if (session?.user?.courses) {
+          const formattedCourses: UserCourse[] = session.user.courses.map((course: any) => ({
+            auth_level: course.auth_level,
+            display_name: course.display_name,
+            name: course.name,
+          }));
+          setCourses(formattedCourses);
+        } else if (session?.user?.accessToken) {
+          const user_courses = await getUserCoursesFromAutolab({
+            access_token: session.user.accessToken,
+          });
           setCourses(user_courses);
-        }catch(error){
-          throw new Error("An error occurred while fetching user courses");
-      }finally{
+        } else {
+          setCourses([]);
+        }
+      } catch (error) {
+        console.error("An error occurred while fetching user courses:", error);
+      } finally {
         setLoading(false);
-      }}
+      }
+    };
+  
+    if (status === "authenticated") {
       fetchUserCourses();
-    },[])
+    }
+  }, [session, status]);
 
   const handleLogOut = async () => {
     try{

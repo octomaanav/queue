@@ -1,7 +1,9 @@
 'use server'
 
+import { getServerSession } from "next-auth";
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server"
+import { authOptions } from "../auth/auth-option";
 
 
 export async function getUserInfo({access_token}: {access_token: string}){
@@ -46,16 +48,14 @@ export async function getUserCoursesFromAutolab({access_token}:{access_token : s
     }
 }
 
-export async function getUserCoursesFromCookies(){
+export async function getUserCoursesFromSession(){
     try{
-        const cookieStore = await cookies();
-        const user_courses = cookieStore.get("user_courses")?.value;
-        const access_token = cookieStore.get("access_token")?.value;
-        if(user_courses){
-            return JSON.parse(user_courses);
+        const session = await getServerSession(authOptions)
+        if(session?.user?.courses){
+            return session?.user.courses
         }
-        else if(access_token){
-            const user_courses = await getUserCoursesFromAutolab({access_token});
+        else if(session?.user?.accessToken){
+            const user_courses = await getUserCoursesFromAutolab({"access_token" : session?.user?.accessToken});
             return user_courses;
         }
         return []

@@ -1,13 +1,10 @@
 'use client';
-
-import { getUserCoursesFromCookies } from '@/lib/user_info/getUserInfo';
 import { useParams, useSearchParams, useRouter } from 'next/navigation';
-import { DATA } from '../../../../../data/data';
 import React, { useEffect } from 'react';
 import { OfficeHoursCard } from '@/components/office-hours';
-import { initialize } from '../../../../../supabase';
 import { getCourseId, getOfficeHoursSchedule } from '@/lib/supabase/userHelper';
 import { Skeleton } from '@/components/ui/skeleton';
+import { useSession } from 'next-auth/react';
 import { h1 } from 'framer-motion/client';
 
 
@@ -39,27 +36,49 @@ export default function CoursePage() {
   const courseCode: string = params?.course as string;
   const courseName = searchParams.get('course');
 
+  const { data: session, status } = useSession();
+
   useEffect(() => {
+    if (status === "loading") return;
+  
     const fetchUserCourses = async () => {
       try {
         setLoading(true);
-        const user_courses = await getUserCoursesFromCookies();
-        const isAuthorized = user_courses.some((course: UserCourse) => course.name === courseCode && course.display_name === courseName);
-        setAuthorized(isAuthorized);
-        if (isAuthorized) {
-          setCourses(user_courses);
-        } else {
-          router.push('/error');
+        if (!session) {
+          console.log("Session is undefined. Redirecting to login.");
+          router.push('/auth/login');
+          return;
+        }
+        if (session.user?.courses) {
+          const user_courses: UserCourse[] = session.user.courses.map((course: any) => ({
+            auth_level: course.auth_level,
+            display_name: course.display_name,
+            name: course.name,
+          }));
+          const isAuthorized = user_courses.some(
+            (course: UserCourse) =>
+              course.name === courseCode && course.display_name === courseName
+          );
+          setAuthorized(isAuthorized);
+          if (isAuthorized) {
+            setCourses(user_courses);
+          } else {
+            router.push('/error');
+          }
         }
       } catch (error) {
         console.error("An error occurred while fetching user courses:", error);
         router.push('/error');
       } finally {
+        setLoading(false);
       }
     };
-
+  
     fetchUserCourses();
-  }, [courseCode, courseName, router]);
+  }, [session, status, courseCode, courseName, router]);
+
+  console.log(courses);
+  
 
 
   useEffect(() => {
@@ -68,11 +87,12 @@ export default function CoursePage() {
         setLoading(true);
         const response  = await fetch("/api/token")
         if(!response.ok){
-          throw new Error("Error while fetching user courses");
+          throw new Error("Error while fetching user the token");
         }
         const access_token = await response.json();
         if(courseName && courseCode){
           const courseId = await getCourseId(courseName, courseCode, access_token);
+          console.log(access_token);
           const schedule = await getOfficeHoursSchedule(access_token,courseId);
           setOfficeHours(schedule);
         }
@@ -84,7 +104,7 @@ export default function CoursePage() {
     };
   
     fetchOfficeHours();
-  }, []);
+  }, [session, status, courseCode, courseName, router]);
 
   const renderSkeletons = () => {
     return Array.from({ length: 6 }).map((i, index) => (

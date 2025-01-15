@@ -1,11 +1,10 @@
 'use server'
 
 import { NextRequest, NextResponse } from "next/server";
-import { pushUserToDataBase, getOfficeHoursSchedule, getCourseId } from "@/lib/supabase/userHelper";
+import { pushUserToDataBase } from "@/lib/supabase/userHelper";
 import {getUserCoursesFromAutolab, getUserInfo } from "@/lib/user_info/getUserInfo";
-import {initialize } from "../../../../supabase";
 import { cookies } from "next/headers";
-import { getAuthStatus, setAuthStatus } from "@/lib/helper/setAuthStatus";
+import {setAuthStatus } from "@/lib/helper/setAuthStatus";
 
 export async function GET(request: NextRequest) {
     try{
@@ -24,9 +23,9 @@ export async function GET(request: NextRequest) {
             body: new URLSearchParams({
                 grant_type: "authorization_code",
                 code,
-                redirect_uri: "https://localhost:3000/api/callback",
-                client_id: process.env.AUTOLAB_CLIENT_ID|| '',   
-                client_secret: process.env.AUTOLAB_CLIENT_SECRET || '',
+                redirect_uri:process.env.AUTOLAB_REDIRECT_URI as string,
+                client_id: process.env.AUTOLAB_CLIENT_ID as string,   
+                client_secret: process.env.AUTOLAB_CLIENT_SECRET as string,
             })
         })
 
@@ -37,7 +36,8 @@ export async function GET(request: NextRequest) {
 
         const tokenData = await tokenResponse.json();
         const access_token = tokenData.access_token;
-        const expire = tokenData.expires_in;
+        const refresh_token = tokenData.refresh_token;
+        const expires_in = tokenData.expires_in;
 
         const userData = await getUserInfo({access_token});
         
@@ -47,34 +47,45 @@ export async function GET(request: NextRequest) {
             access_token
         });
 
-
-        // const cookie_Store = await cookies()
-        // const token = cookie_Store.get("access_token")?.value;
-        // return NextResponse.json({ token });
-
         const user_courses = await getUserCoursesFromAutolab({access_token});
 
         await setAuthStatus("authorized");
 
-        const response = NextResponse.redirect('https://localhost:3000/dashboard');
+        const cookieStore = await cookies();
 
-        response.cookies.set("access_token", access_token, {
+        cookieStore.set("access_token", access_token, {
             maxAge: 60*60*5,
             httpOnly: true,
             secure: process.env.NODE_ENV === "production",
             path: "/"
         });
 
-        response.cookies.set("user_courses", JSON.stringify(user_courses), {
+        cookieStore.set("refresh_token", refresh_token, {
+            maxAge: 60*60*5,
+            httpOnly: true,
+            secure: process.env.NODE_ENV === "production",
+            path: "/"
+        }); 
+
+        cookieStore.set("expires_at", Date.now() + expires_in, {
             maxAge: 60*60*5,
             httpOnly: true,
             secure: process.env.NODE_ENV === "production",
             path: "/"
         })
 
+        cookieStore.set("user_courses", JSON.stringify(user_courses), {
+            maxAge: 60*60*5,
+            httpOnly: true,
+            secure: process.env.NODE_ENV === "production",
+            path: "/"
+        })
+
+        const response = NextResponse.redirect('https://localhost:3000/dashboard');
         return response;
     }
     catch(error){
         return NextResponse.json({ error: "Error occurred while getting authentication code", details : error }, { status: 500 });
     }
 }
+

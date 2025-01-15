@@ -102,27 +102,3 @@ export const getCourseId = async (courseName : string, courseCode : string, acce
         throw error;
     }
 }
-
-// export async function pushUserCourses({userId, user_courses, access_token}: {access_token: string, userId: string, user_courses: Array<string>}){
-//     const courseId = uuid();
-//     await initialize({access_token});
-//     const supabase  = getSupabaseClient();
-
-//     if (!supabase) {
-//         return NextResponse.json({error: "Supabase client is not initialized"}, {status: 500});
-//     }
-
-//     try{
-//         user_courses.forEach(async (course: any) => {
-//             const {data: existingCourses, error: courseError} = await supabase
-//             .from("user_courses")
-//             .select(course.id)
-//         });
-        
-
-//     }catch(error){
-//         return NextResponse.json({error: "Error while adding user courses to database", details: error}, {status: 500});
-//     }
-
-
-// }
