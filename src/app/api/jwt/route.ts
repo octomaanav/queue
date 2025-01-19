@@ -39,8 +39,8 @@ export async function POST(req: NextRequest) {
             phone: "",
             aud: "authenticated",
             role: "authenticated",
-            iat: Math.floor(Date.now() / 1000), // Issued at time (Unix timestamp)
-            exp: Math.floor(Date.now() / 1000) + 7200, // 2 hours
+            iat: Math.floor(Date.now() / 1000),
+            exp: Math.floor(Date.now() / 1000) + 7200,
             aal: "aal1",
             session_id: crypto.randomUUID(),
           };

@@ -2,10 +2,10 @@
 import { useParams, useSearchParams, useRouter } from 'next/navigation';
 import React, { useEffect } from 'react';
 import { OfficeHoursCard } from '@/components/office-hours';
-import { getCourseId, getOfficeHoursSchedule } from '@/lib/supabase/userHelper';
+import { getCourseId, getOfficeHoursSchedule } from '@/lib/helper/getFromDatabase';
 import { Skeleton } from '@/components/ui/skeleton';
-import { useSession } from 'next-auth/react';
-import { h1 } from 'framer-motion/client';
+import { signOut, useSession } from 'next-auth/react';
+import { getUserCoursesFromSession } from '@/lib/helper/getUserInfo';
 
 
 interface UserCourse {
@@ -24,10 +24,8 @@ interface OfficeHours {
 }
 
 export default function CoursePage() {
-  const [courses, setCourses] = React.useState<UserCourse[]>([]);
   const [officeHours, setOfficeHours] = React.useState<OfficeHours[]>([]);
   const [loading, setLoading] = React.useState(true);
-  const [authorized, setAuthorized] = React.useState(false);
 
   const params = useParams();
   const searchParams = useSearchParams();
@@ -41,59 +39,44 @@ export default function CoursePage() {
   useEffect(() => {
     if (status === "loading") return;
   
-    const fetchUserCourses = async () => {
+    const validatinUser = async () => {
       try {
-        setLoading(true);
-        if (!session) {
-          console.log("Session is undefined. Redirecting to login.");
-          router.push('/auth/login');
-          return;
-        }
-        if (session.user?.courses) {
-          const user_courses: UserCourse[] = session.user.courses.map((course: any) => ({
-            auth_level: course.auth_level,
-            display_name: course.display_name,
-            name: course.name,
-          }));
-          const isAuthorized = user_courses.some(
-            (course: UserCourse) =>
-              course.name === courseCode && course.display_name === courseName
-          );
-          setAuthorized(isAuthorized);
-          if (isAuthorized) {
-            setCourses(user_courses);
-          } else {
-            router.push('/error');
-          }
+        const user_courses = await getUserCoursesFromSession();
+        const isAuthorized = user_courses.some(
+          (course: UserCourse) =>
+            course.name === courseCode && course.display_name === courseName
+        );
+        if (!isAuthorized){
+          router.push('/error');
         }
       } catch (error) {
         console.error("An error occurred while fetching user courses:", error);
         router.push('/error');
-      } finally {
-        setLoading(false);
       }
     };
-  
-    fetchUserCourses();
+
+    if (status === 'unauthenticated') {
+      signOut({
+        redirect: true,
+        callbackUrl: '/',
+      });
+    } else if (status === 'authenticated') {
+      validatinUser();
+    }
+
   }, [session, status, courseCode, courseName, router]);
-
-  console.log(courses);
   
-
-
   useEffect(() => {
     const fetchOfficeHours = async () => {
       try {
         setLoading(true);
-        const response  = await fetch("/api/token")
-        if(!response.ok){
-          throw new Error("Error while fetching user the token");
-        }
-        const access_token = await response.json();
         if(courseName && courseCode){
-          const courseId = await getCourseId(courseName, courseCode, access_token);
-          console.log(access_token);
-          const schedule = await getOfficeHoursSchedule(access_token,courseId);
+          const courseId = await getCourseId(courseName, courseCode);
+          if(!courseId){
+            console.error("Course id is null");
+            // signOut({redirect: true, callbackUrl: '/'});
+          }
+          const schedule = await getOfficeHoursSchedule(courseId);
           setOfficeHours(schedule);
         }
       } catch (error) {
@@ -102,23 +85,33 @@ export default function CoursePage() {
         setLoading(false);
       }
     };
-  
     fetchOfficeHours();
   }, [session, status, courseCode, courseName, router]);
 
+
   const renderSkeletons = () => {
     return Array.from({ length: 6 }).map((i, index) => (
-      <div key={index} className="flex flex-col mb-3 space-y-2 w-full lg:w-[350px]">
+      <div key={index} className="flex flex-col mb-3 space-y-2 w-full">
         <Skeleton className="h-[110px] w-full rounded-xl" />
       </div>
     ));
   };
 
+  const displayMessage = () => {
+    return (
+      <div className="flex flex-col items-center justify-center w-full h-full py-10">
+        <h1 className="text-2xl font-semibold text-muted-foreground">No office hours available</h1>
+      </div>
+    );
+  }
+
   return (
-    <div className="container mx-auto py-10">
+    <main className='px-7 py-4'>
+      <h1 className='md:text-3xl text-2xl font-bold mb-4'>Office Hours</h1>
     {loading ?
     renderSkeletons()
-    :officeHours.map((OH) => (
+    :
+    officeHours.map((OH) => (
           <OfficeHoursCard
             key = {OH.id}
             id={OH.id}
@@ -128,7 +121,8 @@ export default function CoursePage() {
             day={OH.day}
             instructors={['Manav','Amit','Thiru']}
           />
-        ))}
-    </div>
+        ))
+      }
+    </main>
   );
 }

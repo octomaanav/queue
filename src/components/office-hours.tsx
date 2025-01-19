@@ -5,6 +5,7 @@ import { Card, CardDescription, CardHeader, CardTitle } from "./ui/card"
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar"
 import { Button } from "./ui/button"
 import { Badge } from "./ui/badge"
+import Link from "next/link"
 
 interface OfficeHoursCardProps {
     id: string,
@@ -16,6 +17,9 @@ interface OfficeHoursCardProps {
 }
 
 export const OfficeHoursCard : React.FC<OfficeHoursCardProps> = ({id, location, start, end,day, instructors}) => {
+  const handleClick = () => {
+
+  }
   const convertTime = (time: number): string => {
     const hours = Math.floor(time / 100); // Extract hours
     const minutes = time % 100; // Extract minutes
@@ -26,7 +30,7 @@ export const OfficeHoursCard : React.FC<OfficeHoursCardProps> = ({id, location, 
 };
     return (
         <div className="w-full mb-3">
-        <Card key={id} className="px-4 py-2 hover:shadow-lg transition-shadow duration-300">
+        <Card key={id} className="px-4 py-3 hover:shadow-lg transition-shadow duration-300">
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center space-y-4 md:space-y-0 md:space-x-4">
             <div className="flex-1 space-y-1">
               <h2 className="text-xl font-semibold">{location}</h2>
@@ -51,9 +55,11 @@ export const OfficeHoursCard : React.FC<OfficeHoursCardProps> = ({id, location, 
               
             </div>
             <div className="flex flex-col space-y-2 w-full md:w-auto">
-              <Button className="w-full md:w-auto font-semibold">
-                View the Queue
-              </Button>
+              <Link className='w-full font-bold' href={{ pathname: `/queue/${id}`}}>
+                <Button className="w-full font-semibold">
+                  View the Queue
+                </Button>
+              </Link>
               <Button variant="outline" className="w-full md:w-auto font-semibold">
                 <CalendarPlus className="mr-2 h-4 w-4" /> Add to Calendar
               </Button>

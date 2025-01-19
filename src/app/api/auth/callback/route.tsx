@@ -1,8 +1,8 @@
 'use server'
 
 import { NextRequest, NextResponse } from "next/server";
-import { pushUserToDataBase } from "@/lib/supabase/userHelper";
-import {getUserCoursesFromAutolab, getUserInfo } from "@/lib/user_info/getUserInfo";
+import { pushUserToDataBase } from "@/lib/helper/getFromDatabase";
+import {getUserCoursesFromAutolab, getUserInfo } from "@/lib/helper/getUserInfo";
 import { cookies } from "next/headers";
 import {setAuthStatus } from "@/lib/helper/setAuthStatus";
 

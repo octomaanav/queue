@@ -75,7 +75,6 @@ export async function initializeSupabaseClient({jwt_token} : {jwt_token : string
           }
         );
         
-        // Configure realtime client with auth
         client.realtime.setAuth(jwt_token);
         
         return client;
@@ -88,26 +87,15 @@ export async function initializeSupabaseClient({jwt_token} : {jwt_token : string
 
 
 export const initialize = async ({ access_token }: { access_token: string }) : Promise<SupabaseClient | null> => {
-    if (supabase) {
-      return supabase;
-    }
     try {
       const jwtToken = await fetchSupabaseJWT({ access_token });
       const client = await initializeSupabaseClient({ jwt_token: jwtToken });
       if (!client) {
         return null;
-        // return NextResponse.json({ error: "Error while initializing Supabase client" }, { status: 500 });
       }
       supabase = client;
       return supabase
     } catch (err) {
-      return null;
-      // return NextResponse.json({ error: "Error while initializing Supabase client", details: err }, { status: 500 });
+      throw new Error("Failed to initialize supabase client");
     }
   }
-
-
-  // export const getSupabaseClient = async (): Promise<SupabaseClient | null> => {
-  //   return supabase;
-  // };
-

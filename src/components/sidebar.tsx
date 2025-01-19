@@ -25,10 +25,11 @@ import {
 } from "@/components/ui/sidebar"
 import React, { useEffect } from "react"
 import { Skeleton } from "./ui/skeleton"
-import { getUserCoursesFromAutolab } from "@/lib/user_info/getUserInfo"
+import { getUserCoursesFromAutolab, getUserCoursesFromSession } from "@/lib/helper/getUserInfo"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "./ui/dropdown-menu"
 import { useTheme } from "next-themes"
-import { useSession } from "next-auth/react"
+import { signOut, useSession } from "next-auth/react"
+import { useRouter } from "next/navigation"
 
 interface UserCourse{
   auth_level:string,
@@ -39,22 +40,22 @@ interface UserCourse{
 const menu_items = [
   {
     title: "Dashboard",
-    url: "#",
+    url: "/dashboard",
     icon: Home,
   },
   {
     title: "Queue",
-    url: "#",
+    url: "/dashboard",
     icon: ListEnd,
   },
   {
     title: "Feedback",
-    url: "#",
+    url: "/dashboard",
     icon: MessageSquareQuote,
   },
   {
     title: "Profile",
-    url: "#",
+    url: "/dashboard",
     icon: UserRoundPen,
   },
 ]
@@ -70,19 +71,11 @@ export function AppSidebar() {
     const fetchUserCourses = async () => {
       try {
         setLoading(true);
-        if (session?.user?.courses) {
-          const formattedCourses: UserCourse[] = session.user.courses.map((course: any) => ({
-            auth_level: course.auth_level,
-            display_name: course.display_name,
-            name: course.name,
-          }));
-          setCourses(formattedCourses);
-        } else if (session?.user?.accessToken) {
-          const user_courses = await getUserCoursesFromAutolab({
-            access_token: session.user.accessToken,
-          });
+        const user_courses = await getUserCoursesFromSession();
+        if(user_courses){
           setCourses(user_courses);
-        } else {
+          return;
+        }else{
           setCourses([]);
         }
       } catch (error) {
@@ -98,23 +91,16 @@ export function AppSidebar() {
   }, [session, status]);
 
   const handleLogOut = async () => {
-    try{
-    const response = await fetch("/api/logout", {
-      method: "POST",
-      headers:{
-        "Content-Type": "application/json"
-      },
-    });
-    if(response.ok){
-      window.location.href = "/";
-    }else{
-      throw new Error("Failed to log out");
+    try {
+      await signOut({
+        redirect: true,
+        callbackUrl: '/',
+      });
+    } catch (error) {
+      console.error("Error during logout:", error);
     }
-    }catch(error){
-      throw new Error("Error while logging out");
-    }
-  }
-
+  };
+  
   const renderCourseSkeleton = () => {
       return Array.from({ length: 6 }).map((i, index) => (
         <Skeleton key={index} className="h-7 rounded-sm" />
@@ -144,7 +130,7 @@ export function AppSidebar() {
                   <SidebarMenuButton asChild>
                     <a href={item.url}>
                       <item.icon />
-                      <span>{item.title}</span>
+                      <span className="font-semibold">{item.title}</span>
                     </a>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
@@ -166,7 +152,7 @@ export function AppSidebar() {
                   <SidebarMenuButton asChild>
                     <a href={"/"}>
                       <BookOpen />
-                      <span>{item.display_name}</span>
+                      <span className="font-semibold">{item.display_name}</span>
                     </a>
                   </SidebarMenuButton>
                 </SidebarMenuItem>

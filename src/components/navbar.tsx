@@ -8,10 +8,12 @@ import { Button } from "./ui/button"
 import Link from "next/link"
 import { Avatar, AvatarFallback } from "./ui/avatar"
 import { getAuthStatus } from "@/lib/helper/setAuthStatus"
+import { useSession } from "next-auth/react"
 
 export default function Navbar() {
     const [auth, setAuth] = React.useState(false)
     const [loading, setLoading] = React.useState(true)
+    const {data : session, status} = useSession();
 
     useEffect(() => {
         const fetchAuthStatus = async () => {
@@ -45,10 +47,10 @@ export default function Navbar() {
             
             <div className="flex gap-4 items-center justify-center">
                 <ModeToggle />
-                {loading ? (
+                {status == 'loading' ? (
                     <></>
                     // <div className="w-8 h-8 rounded-full bg-gray-300 animate-pulse"></div>
-                ) : auth ? (
+                ) : status == 'authenticated' ? (
                     <Avatar>
                         <AvatarFallback className="font-semibold">
                             MS

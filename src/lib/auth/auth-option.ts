@@ -1,9 +1,7 @@
 import { NextAuthOptions } from "next-auth";
 import { OAuthConfig } from "next-auth/providers/oauth";
-import { cookies } from "next/headers";
-import { getUserCoursesFromAutolab, getUserInfo } from "../user_info/getUserInfo";
-import { pushUserToDataBase } from "../supabase/userHelper";
-import { redirect } from "next/dist/server/api-utils";
+import { getUserCoursesFromAutolab, getUserInfo } from "../helper/getUserInfo";
+import { pushUserToDataBase } from "../helper/getFromDatabase";
 
 interface AutolabProfile {
     first_name: string;
@@ -48,18 +46,26 @@ export const authOptions: NextAuthOptions = {
   debug: true,
   callbacks: {
     async redirect({ url, baseUrl }) {
-      return `${baseUrl}/dashboard`;
-
+      if (url === baseUrl || url === `${baseUrl}/`) {
+        return `${baseUrl}/dashboard`;
+      }
+      
+      if (url.startsWith('/')) {
+        return `${baseUrl}${url}`;
+      } else if (new URL(url).origin === baseUrl) {
+        return url;
+      }
+    
+      return baseUrl;
     },
     async jwt({ token, account }) {
       if (account) {
-        // Exchange the authorization code for tokens
         if (!account.access_token) {
           throw new Error("Access token is missing");
         }
         const userData = await getUserInfo({ access_token: account.access_token });
         
-        // Store user in database
+
         await pushUserToDataBase({
           name: `${userData.first_name} ${userData.last_name}`,
           email: userData.email,
@@ -85,5 +91,8 @@ export const authOptions: NextAuthOptions = {
       session.user.courses = token.userCourses as string[];
       return session;
     },
+  },
+  pages: {
+    signOut: "/",
   },
 };
