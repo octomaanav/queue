@@ -7,7 +7,6 @@ import ModeToggle from "./mode-toggle"
 import { Button } from "./ui/button"
 import Link from "next/link"
 import { Avatar, AvatarFallback } from "./ui/avatar"
-import { getAuthStatus } from "@/lib/helper/setAuthStatus"
 import { useSession } from "next-auth/react"
 
 export default function Navbar() {
@@ -18,8 +17,7 @@ export default function Navbar() {
     useEffect(() => {
         const fetchAuthStatus = async () => {
             try {
-                const status = await getAuthStatus();
-                setAuth(status === "authorized");
+                setAuth(status === "authenticated");
             } finally {
                 setLoading(false);
             }

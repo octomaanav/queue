@@ -64,13 +64,11 @@ export const authOptions: NextAuthOptions = {
           throw new Error("Access token is missing");
         }
         const userData = await getUserInfo({ access_token: account.access_token });
-        
-
-        await pushUserToDataBase({
+        const userID = await pushUserToDataBase({
           name: `${userData.first_name} ${userData.last_name}`,
           email: userData.email,
           access_token: account.access_token,
-        });
+        }) as { id: string };
   
         const userCourses: string[] = await getUserCoursesFromAutolab({
           access_token: account.access_token,
@@ -80,6 +78,8 @@ export const authOptions: NextAuthOptions = {
         token.refreshToken = account.refresh_token;
         token.expiresAt = Date.now() + 7200 * 1000;
         token.userCourses = userCourses;
+        token.id = userID.id as string;
+        
       }
   
       return token;
@@ -89,6 +89,7 @@ export const authOptions: NextAuthOptions = {
       session.user.refreshToken = token.refreshToken;
       session.user.expiresAt = token.expiresAt;
       session.user.courses = token.userCourses as string[];
+      session.user.id = token.id as string;
       return session;
     },
   },

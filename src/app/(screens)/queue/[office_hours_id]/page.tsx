@@ -44,7 +44,6 @@ export default function Queue() {
                     setError("Invalid office hours queue.");
                     return;
                 }
-
                 const current_course = await getCourseName(officeHourEntry.class);
                 const user_courses = await getUserCoursesFromSession();
                 const user_course = user_courses.find(
@@ -110,11 +109,12 @@ export default function Queue() {
     },[status,session])
 
     const renderSkeletons = () => {
-        return Array.from({ length: 6 }).map((_, index) => (
-            <div key={index} className="flex flex-col mb-3 w-full lg:w-[350px]">
-                <Skeleton className="h-[200px] w-full rounded-xl lg:w-[350px]" />
-            </div>
-        ));
+        return(<></>)
+        // return Array.from({ length: 6 }).map((_, index) => (
+        //     <div key={index} className="flex flex-col mb-3 w-full lg:w-[350px]">
+        //         <Skeleton className="h-[200px] w-full rounded-xl lg:w-[350px]" />
+        //     </div>
+        // ));
     };
 
     return (
@@ -131,11 +131,12 @@ export default function Queue() {
                     <QueueStatus 
                         courseName={course?.display_name || ''}
                         totalStudents={totalStudents}
+                        office_hours_id={office_hours_id}
                     />
-                    <OfficeHoursInfoCard />
+                    {/* <OfficeHoursInfoCard />
                     <AnnouncementCard 
                         announcements={announcements}
-                    />
+                    /> */}
                 </div>
             )}
         </main>

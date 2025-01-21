@@ -4,7 +4,6 @@ import { NextRequest, NextResponse } from "next/server";
 import { pushUserToDataBase } from "@/lib/helper/getFromDatabase";
 import {getUserCoursesFromAutolab, getUserInfo } from "@/lib/helper/getUserInfo";
 import { cookies } from "next/headers";
-import {setAuthStatus } from "@/lib/helper/setAuthStatus";
 
 export async function GET(request: NextRequest) {
     try{
@@ -48,8 +47,6 @@ export async function GET(request: NextRequest) {
         });
 
         const user_courses = await getUserCoursesFromAutolab({access_token});
-
-        await setAuthStatus("authorized");
 
         const cookieStore = await cookies();
 

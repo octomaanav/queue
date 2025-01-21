@@ -31,9 +31,9 @@ export async function pushUserToDataBase({name, email, access_token}: {name: str
 
 
 
-        const {error : insertError} = await supabase
+        const {data, error : insertError} = await supabase
         .from('users')
-        .insert([{id: userId, name: name, email: email}]);
+        .insert([{id: userId, name: name, email: email}])
 
         if(insertError){
             return NextResponse.json({error: "Error while inserting user", details: insertError}, {status: 500});
