@@ -104,7 +104,6 @@ export default function CoursePage() {
       </div>
     );
   }
-
   return (
     <main className='px-7 py-4'>
       <h1 className='md:text-3xl text-2xl font-bold mb-4'>Office Hours</h1>

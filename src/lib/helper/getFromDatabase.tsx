@@ -46,6 +46,38 @@ export async function pushUserToDataBase({name, email, access_token}: {name: str
     }
 }
 
+export async function getUserFromDatabase(userId : string){
+    const session = await getServerSession(authOptions);
+    const access_token = session?.user?.accessToken
+
+    if(!access_token || !session){
+        return NextResponse.json({error: "Session is invalid or access token is missing"}, {status: 500});
+    }
+
+    const supabase = await initialize({access_token});
+
+    if (!supabase) {
+        return NextResponse.json({error: "Supabase client is not initialized"}, {status: 500});
+    }
+
+    try{
+        const {data: user, error: userError} = await supabase
+        .from('users')
+        .select('*')
+        .eq('id', userId)
+        .single();
+
+        if(userError){
+            return NextResponse.json({error: "Error while fetching user", details: userError}, {status: 500});
+        }
+
+        return user;
+
+    }catch(error){
+        return NextResponse.json({error: "Error while fetching user", details: error}, {status: 500});
+    }
+}
+
 export async function getOfficeHoursSchedule(courseId : string){
     const session = await getServerSession(authOptions);
     const access_token = session?.user?.accessToken

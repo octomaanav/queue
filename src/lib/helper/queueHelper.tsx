@@ -6,39 +6,62 @@ import { authOptions } from "../auth/auth-option";
 import { initialize } from "../../../supabase";
 import { v4 as uuid } from "uuid";
 
-export async function getQueue(office_hours_id : string){
-    try{
-        const session = await getServerSession(authOptions);
-        const access_token = session?.user?.accessToken
-        if(!access_token || !session){
-            throw new Error("Session is invalid or access token is missing");
-        }
+export async function getQueue(office_hours_id: string) {
+  try {
+    const session = await getServerSession(authOptions);
+    const access_token = session?.user?.accessToken;
     
-        const supabase = await initialize({access_token});
-    
-    
-        if (!supabase) {
-            throw new Error("Supabase client is not initialized");
-        }
-        const {data, error} = await supabase
-        .from('queue')
-        .select('*')
-        .eq('office_hours', office_hours_id);
-
-        if(data == null){
-            return null
-        }
-
-        if(error){
-            throw new Error("Error while fetching queue");
-        }
-
-        return data
-
-
-    }catch(error){
-        return NextResponse.json({error: "Error while fetching queue", details: error}, {status: 500});
+    if (!access_token || !session) {
+      throw new Error("Session is invalid or access token is missing");
     }
+
+    const supabase = await initialize({ access_token });
+    if (!supabase) {
+      throw new Error("Supabase client is not initialized");
+    }
+
+    // Fetch queue entries for the given office_hours_id
+    const { data: queue, error } = await supabase
+      .from("queue")
+      .select("*")
+      .eq("office_hours", office_hours_id);
+
+    if (error) {
+      throw new Error("Error while fetching queue");
+    }
+
+    if (!queue || queue.length === 0) {
+      return [];
+    }
+
+    // Extract unique student IDs from the queue
+    const studentIDs = queue.map((entry) => entry.student);
+
+    // Fetch user details for all students in the queue
+    const { data: users, error: userError } = await supabase
+      .from("users") // Assuming there is a 'users' table
+      .select("id, name, email")
+      .in("id", studentIDs); // Fetch all students in one query
+
+    if (userError) {
+      console.error("Error fetching user details:", userError);
+      throw new Error("Error while fetching student information");
+    }
+
+    // Create a map of user details for quick lookup
+    const userMap = new Map(users.map((user) => [user.id, user]));
+
+    // Merge user details into the queue
+    const enrichedQueue = queue.map((entry) => ({
+      ...entry,
+      name: userMap.get(entry.student)?.name || "Unknown",
+      email: userMap.get(entry.student)?.email || "Unknown",
+    }));
+
+    return enrichedQueue;
+  } catch (error) {
+    return NextResponse.json({ error: "Error while fetching queue", details: error }, { status: 500 });
+  }
 }
 
 export async function JoinQueue(office_hours_id: string) {

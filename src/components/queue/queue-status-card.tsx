@@ -1,12 +1,12 @@
 'use client'
 
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "./ui/card"
-import { Button } from "./ui/button"
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "../ui/card"
+import { Button } from "../ui/button"
 import React from "react"
-import { Skeleton } from "./ui/skeleton"
+import { Skeleton } from "../ui/skeleton"
 import { AlarmClock, UserRound } from "lucide-react"
 import { useSession } from "next-auth/react"
-import {AnimatedModal} from "./animated-modal"
+import {AnimatedModal} from "../animated-modal"
 
 interface QueueInfoProps {
     id: string,
@@ -69,6 +69,7 @@ export default function QueueStatus({courseName, totalStudents, office_hours_id}
                 throw new Error("Something went wrong while joining the queue")
             }
             const data = await response.json()
+            console.log(data)
             if(!data){
                 throw new Error("Queue data is null")
             }
@@ -86,6 +87,7 @@ export default function QueueStatus({courseName, totalStudents, office_hours_id}
 
     const handleQueueLeave = async () => {
         try {
+            setLoading(true)
             setJoinStatus(false)
             setModalOpen(false)  
             const response = await fetch("/api/queue/leave",{
@@ -102,6 +104,8 @@ export default function QueueStatus({courseName, totalStudents, office_hours_id}
             }
         } catch (error) {
             console.error(error)
+        }finally{
+            setLoading(false)
         }
     }
 

@@ -1,6 +1,6 @@
 import { Book, BookMarked, Clock, MapPin, UserRound } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
-import { Badge } from "./ui/badge";
+import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
+import { Badge } from "../ui/badge";
 
 export default function OfficeHoursInfoCard(){
     return(
