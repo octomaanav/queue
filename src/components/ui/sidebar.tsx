@@ -214,6 +214,7 @@ const Sidebar = React.forwardRef<
 
     return (
       <div
+        suppressHydrationWarning={true}
         ref={ref}
         className="group peer hidden md:block text-sidebar-foreground"
         data-state={state}
@@ -223,6 +224,7 @@ const Sidebar = React.forwardRef<
       >
         {/* This is what handles the sidebar gap on desktop */}
         <div
+          suppressHydrationWarning={true}
           className={cn(
             "duration-200 relative h-svh w-[--sidebar-width] bg-transparent transition-[width] ease-linear",
             "group-data-[collapsible=offcanvas]:w-0",
@@ -357,6 +359,7 @@ const SidebarHeader = React.forwardRef<
 >(({ className, ...props }, ref) => {
   return (
     <div
+    suppressHydrationWarning={true}
       ref={ref}
       data-sidebar="header"
       className={cn("flex flex-col gap-2 p-2", className)}
@@ -372,6 +375,7 @@ const SidebarFooter = React.forwardRef<
 >(({ className, ...props }, ref) => {
   return (
     <div
+    suppressHydrationWarning={true}
       ref={ref}
       data-sidebar="footer"
       className={cn("flex flex-col gap-2 p-2", className)}
@@ -402,6 +406,7 @@ const SidebarContent = React.forwardRef<
 >(({ className, ...props }, ref) => {
   return (
     <div
+    suppressHydrationWarning={true}
       ref={ref}
       data-sidebar="content"
       className={cn(
@@ -420,6 +425,7 @@ const SidebarGroup = React.forwardRef<
 >(({ className, ...props }, ref) => {
   return (
     <div
+    suppressHydrationWarning={true}
       ref={ref}
       data-sidebar="group"
       className={cn("relative flex w-full min-w-0 flex-col p-2", className)}
@@ -437,6 +443,7 @@ const SidebarGroupLabel = React.forwardRef<
 
   return (
     <Comp
+    suppressHydrationWarning={true}
       ref={ref}
       data-sidebar="group-label"
       className={cn(
@@ -478,6 +485,7 @@ const SidebarGroupContent = React.forwardRef<
   React.ComponentProps<"div">
 >(({ className, ...props }, ref) => (
   <div
+  suppressHydrationWarning={true}
     ref={ref}
     data-sidebar="group-content"
     className={cn("w-full text-sm", className)}

@@ -64,7 +64,7 @@ export type Queue = {
 
 export interface QueueStatusTableProps {
     queue : Queue[]
-    handleRemoveFromQueue : (queue : Queue) => void
+    handleRemoveFromQueue : (queueEntry : Queue[]) => void
 }
 
 
@@ -143,7 +143,7 @@ export const QueueStatusTable:React.FC<QueueStatusTableProps> = ({queue, handleR
                 <Pause style={{color:"#b4b4b4"}}/>
                 Hold
               </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => handleRemoveFromQueue(queue)}>
+              <DropdownMenuItem onClick={() => handleRemoveFromQueue([queue])}>
                 <Trash color="red"/>
                 Remove
               </DropdownMenuItem>
@@ -155,9 +155,11 @@ export const QueueStatusTable:React.FC<QueueStatusTableProps> = ({queue, handleR
   ]
 
   const handleRemoveAll = () => {
+    const entries: Queue[] = []
     console.log(table.getFilteredSelectedRowModel().rows.map((row) => {
-      handleRemoveFromQueue(row.original)
+      entries.push(row.original)
     }))
+    handleRemoveFromQueue(entries)
   }
 
   const table = useReactTable({

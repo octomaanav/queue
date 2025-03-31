@@ -3,8 +3,9 @@
 import { getServerSession } from "next-auth";
 import { NextResponse } from "next/server";
 import { authOptions } from "../auth/auth-option";
-import { initialize } from "../../../supabase";
+import { getSupabaseClient } from "../../../supabase";
 import { v4 as uuid } from "uuid";
+import { Queue } from "@/types";
 
 export async function getQueue(office_hours_id: string) {
   try {
@@ -15,7 +16,7 @@ export async function getQueue(office_hours_id: string) {
       throw new Error("Session is invalid or access token is missing");
     }
 
-    const supabase = await initialize({ access_token });
+    const supabase = await getSupabaseClient({ access_token });
     if (!supabase) {
       throw new Error("Supabase client is not initialized");
     }
@@ -75,7 +76,7 @@ export async function JoinQueue(office_hours_id: string) {
         throw new Error("Session is invalid or access token is missing");
       }
   
-      const supabase = await initialize({ access_token });
+      const supabase = await getSupabaseClient({ access_token });
       if (!supabase) {
         throw new Error("Supabase client is not initialized");
       }
@@ -124,7 +125,7 @@ export async function getQueueEntry(office_hours_id : string){
         if(!access_token || !session){
             throw new Error("Session is invalid or access token is missing");
         }
-        const supabase = await initialize({ access_token });
+        const supabase = await getSupabaseClient({ access_token });
         if (!supabase) {
             throw new Error("Supabase client is not initialized");
         }
@@ -147,6 +148,55 @@ export async function getQueueEntry(office_hours_id : string){
     }
 }
 
+export async function removeFromQueue(removeEntries: Queue[]) {
+  try {
+      const session = await getServerSession(authOptions);
+      const access_token = session?.user?.accessToken;
+      if (!access_token || !session) {
+          throw new Error("Session is invalid or access token is missing");
+      }
+      
+      const supabase = await getSupabaseClient({ access_token });
+      if (!supabase) {
+          throw new Error("Supabase client is not initialized");
+      }
+
+      // Fetch the queue data for the specified office hours
+      const { data: queueData, error } = await supabase
+          .from('queue')
+          .select('*')
+          .eq('office_hours', removeEntries[0].office_hours)
+          .order('position', { ascending: true });
+
+      if (error || !queueData) {
+          throw new Error("Error fetching queue data");
+      }
+
+      const removePositions = new Set(removeEntries.map(entry => entry.id));
+
+      console.log(removePositions);
+
+      let updatedQueue = queueData.filter(entry => !removePositions.has(entry.id));
+
+      updatedQueue = updatedQueue.map((entry, index) => ({
+          ...entry,
+          position: index + 1,
+      }));
+
+      // const updates = updatedQueue.map(entry => 
+      //     supabase.from('queue').update({ position: entry.position }).eq('id', entry.id)
+      // );
+
+      // await Promise.all(updates);
+      return updatedQueue;
+
+  } catch (error) {
+      console.error(error);
+      throw new Error("Error while removing the user from the queue");
+  }
+}
+
+
 export async function leaveQueue(office_hours : string){
   try {
     const session = await getServerSession(authOptions);
@@ -155,7 +205,7 @@ export async function leaveQueue(office_hours : string){
     if (!access_token || !session) {
       throw new Error("Session is invalid or access token is missing");
     }
-    const supabase = await initialize({ access_token });
+    const supabase = await getSupabaseClient({ access_token });
     if (!supabase) {
       throw new Error("Supabase client is not initialized");
     }

@@ -6,7 +6,7 @@ import { cookies } from 'next/headers'
 
 let supabase: SupabaseClient | null = null;
 
-export async function fetchSupabaseJWT({access_token} : {access_token : string}){
+export async function fetchSupabaseJWT(access_token : string){
     
     try{
         const cookieStore = await cookies();
@@ -15,7 +15,6 @@ export async function fetchSupabaseJWT({access_token} : {access_token : string})
         if(supabase_jwt && supabase_jwt_expiry && Date.now() < parseInt(supabase_jwt_expiry.value)){
             return supabase_jwt.value
         }
-    
         const jwtResponse = await fetch("https://localhost:3000/api/jwt",{
             method: "POST",
             headers:{
@@ -23,14 +22,13 @@ export async function fetchSupabaseJWT({access_token} : {access_token : string})
             },
             body: JSON.stringify({access_token})
         })
-
-        
+      
         if(!jwtResponse.ok){
             const error = await jwtResponse.json();
             return NextResponse.json({ error: "Error while fetching jwt", details:error}, { status: 500 });
         }
-
         const jwtData = await jwtResponse.json();
+
 
         cookieStore.set("supabase_jwt", jwtData.supabase_jwt, {
             httpOnly: true,
@@ -56,7 +54,7 @@ export async function fetchSupabaseJWT({access_token} : {access_token : string})
     }
 }
 
-export async function initializeSupabaseClient({jwt_token} : {jwt_token : string}){
+export async function initializeSupabaseClient(jwt_token: string) {
     try {
         const client = createClient(
           process.env.SUPABASE_URL || "",
@@ -76,26 +74,29 @@ export async function initializeSupabaseClient({jwt_token} : {jwt_token : string
         );
         
         client.realtime.setAuth(jwt_token);
-        
         return client;
+        
       } catch (err) {
         console.error("Failed to initialize supabase client:", err);
         throw err;
       }
-    
 }
 
-
-export const initialize = async ({ access_token }: { access_token: string }) : Promise<SupabaseClient | null> => {
+  export const initialize = async (access_token: string): Promise<SupabaseClient> => {
     try {
-      const jwtToken = await fetchSupabaseJWT({ access_token });
-      const client = await initializeSupabaseClient({ jwt_token: jwtToken });
-      if (!client) {
-        return null;
-      }
-      supabase = client;
-      return supabase
+      const jwtToken = await fetchSupabaseJWT(access_token);
+      const client = await initializeSupabaseClient(jwtToken);
+
+      return client;
     } catch (err) {
-      throw new Error("Failed to initialize supabase client");
+      throw new Error("Failed to initialize Supabase client");
     }
+  }
+
+  export const getSupabaseClient = async ({access_token} : {access_token : string}) : Promise<SupabaseClient | null> => {
+    if (!supabase) {
+      console.log("Supabase client is not initialized, initializing...");
+      supabase = await initialize(access_token);
+    }
+    return supabase;
   }

@@ -6,7 +6,7 @@ import { QueueStatusTable } from "@/components/queue/queue-status-table";
 import { Skeleton } from "@/components/ui/skeleton";
 import { getCourseName, getOfficeHoursEntry, getUserFromDatabase } from "@/lib/helper/getFromDatabase";
 import { getUserCoursesFromSession } from "@/lib/helper/getUserInfo";
-import { getQueue } from "@/lib/helper/queueHelper";
+import { getQueue, removeFromQueue } from "@/lib/helper/queueHelper";
 import { signOut, useSession } from "next-auth/react";
 import { useParams } from "next/navigation";
 import React from "react"
@@ -112,8 +112,6 @@ export default function Queue() {
     }, [status, session]);
 
 
-
-
     const renderSkeletons = () => (
         <div>
             {/* Skeleton content */}
@@ -131,8 +129,17 @@ export default function Queue() {
         </div>
     );
 
-    const handleRemoveFromQueue = (queue: Queue) => {
-        console.log(queue);
+    const handleRemoveFromQueue = async (queueEntry: Queue[]) => {
+        const updatedQueue = await removeFromQueue(queueEntry);
+        console.log(updatedQueue);
+        if (updatedQueue) {
+            // setQueue(updatedQueue);
+            // console.log(removal_status);
+            // setQueue((prevQueue) => prevQueue.filter((entry) => !queueEntry.includes(entry)));
+        }
+        else{
+            console.error("Error while removing from queue")
+        }
     }
 
     const renderStudentView = () => (

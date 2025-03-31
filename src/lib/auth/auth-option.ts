@@ -42,7 +42,11 @@ const autolabProvider: OAuthConfig<AutolabProfile> = {
 
 export const authOptions: NextAuthOptions = {
   providers: [autolabProvider],
-  session: { strategy: "jwt" },
+  session: { 
+    strategy: "jwt",
+    maxAge: 60 * 60 * 3,
+    updateAge: 60 * 15,
+  },
   debug: true,
   callbacks: {
     async redirect({ url, baseUrl }) {
@@ -76,7 +80,7 @@ export const authOptions: NextAuthOptions = {
   
         token.accessToken = account.access_token;
         token.refreshToken = account.refresh_token;
-        token.expiresAt = Date.now() + 7200 * 1000;
+        // token.expiresAt = Date.now() + 7200 * 1000;
         token.userCourses = userCourses;
         token.id = userID.id as string;
         
@@ -87,7 +91,7 @@ export const authOptions: NextAuthOptions = {
     async session({ session, token }) {
       session.user.accessToken = token.accessToken;
       session.user.refreshToken = token.refreshToken;
-      session.user.expiresAt = token.expiresAt;
+      // session.user.expiresAt = token.expiresAt;
       session.user.courses = token.userCourses as string[];
       session.user.id = token.id as string;
       return session;

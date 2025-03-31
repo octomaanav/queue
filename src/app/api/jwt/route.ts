@@ -40,7 +40,7 @@ export async function POST(req: NextRequest) {
             aud: "authenticated",
             role: "authenticated",
             iat: Math.floor(Date.now() / 1000),
-            exp: Math.floor(Date.now() / 1000) + 7200,
+            exp: Math.floor(Date.now() / 1000) + 7200 * 60,
             aal: "aal1",
             session_id: crypto.randomUUID(),
           };

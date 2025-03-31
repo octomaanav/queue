@@ -35,7 +35,6 @@ export default function CoursePage() {
   const courseName = searchParams.get('course');
 
   const { data: session, status } = useSession();
-
   useEffect(() => {
     if (status === "loading") return;
   
@@ -87,6 +86,7 @@ export default function CoursePage() {
     };
     fetchOfficeHours();
   }, [session, status, courseCode, courseName, router]);
+
 
 
   const renderSkeletons = () => {

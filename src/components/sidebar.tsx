@@ -108,7 +108,7 @@ export function AppSidebar() {
     };
 
   return (
-    <Sidebar>
+    <Sidebar suppressHydrationWarning={true}>
       <SidebarHeader>
         <h1 className="text-center py-2 font-bold">Next Up</h1>
       {/* <Image
@@ -141,9 +141,9 @@ export function AppSidebar() {
         <SidebarGroup>
         {courses.length > 0 ? <SidebarGroupLabel className="text-sm font-semibold">Courses</SidebarGroupLabel> : null}
           <SidebarGroupContent>
-            <SidebarMenu>
+            <SidebarMenu >
               {loading 
-              ? <div className="flex flex-col space-y-2">
+              ? <div suppressHydrationWarning={true} className="flex flex-col space-y-2">
                 {renderCourseSkeleton()}
                 </div>
               : Array.isArray(courses) && courses.length > 0
@@ -166,7 +166,7 @@ export function AppSidebar() {
       <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <SidebarMenuButton className="h-10">
-              <div className="dark:bg-slate-800 bg-gray-300 p-1.5 rounded-full">
+              <div suppressHydrationWarning={true} className="dark:bg-slate-800 bg-gray-300 p-1.5 rounded-full">
                 <span className="font-semibold">MS</span>
               </div>
               <h1 className="font-semibold">Manav Sharma</h1>

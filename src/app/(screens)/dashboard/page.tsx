@@ -11,7 +11,6 @@ interface UserCourse{
   name:string,
 }
 
-
 export default function Dashboard() {
   const [userCourses, setUserCourses] = React.useState<UserCourse[]>([]);
   const [loading, setLoading] = React.useState(true);
