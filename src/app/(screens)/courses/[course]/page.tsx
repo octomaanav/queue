@@ -1,11 +1,12 @@
 'use client';
 import { useParams, useSearchParams, useRouter } from 'next/navigation';
 import React, { useEffect } from 'react';
-import { OfficeHoursCard } from '@/components/office-hours';
+import { OfficeHoursCard } from '@/components/custom/office-hours';
 import { getCourseId, getOfficeHoursSchedule } from '@/lib/helper/getFromDatabase';
 import { Skeleton } from '@/components/ui/skeleton';
 import { signOut, useSession } from 'next-auth/react';
 import { getUserCoursesFromSession } from '@/lib/helper/getUserInfo';
+import { QueueForm } from '@/components/queue/queue-form';
 
 
 interface UserCourse {
@@ -87,8 +88,6 @@ export default function CoursePage() {
     fetchOfficeHours();
   }, [session, status, courseCode, courseName, router]);
 
-
-
   const renderSkeletons = () => {
     return Array.from({ length: 6 }).map((i, index) => (
       <div key={index} className="flex flex-col mb-3 space-y-2 w-full">
@@ -120,6 +119,7 @@ export default function CoursePage() {
             day={OH.day}
             instructors={['Manav','Amit','Thiru']}
           />
+          // <QueueForm role='student'/>
         ))
       }
     </main>

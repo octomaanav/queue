@@ -24,9 +24,9 @@ import {
   SidebarMenuItem,
 } from "@/components/ui/sidebar"
 import React, { useEffect } from "react"
-import { Skeleton } from "./ui/skeleton"
+import { Skeleton } from "../ui/skeleton"
 import { getUserCoursesFromAutolab, getUserCoursesFromSession } from "@/lib/helper/getUserInfo"
-import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "./ui/dropdown-menu"
+import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "../ui/dropdown-menu"
 import { useTheme } from "next-themes"
 import { signOut, useSession } from "next-auth/react"
 import { useRouter } from "next/navigation"

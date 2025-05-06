@@ -3,8 +3,8 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "../globals.css";
-import Navbar from "@/components/navbar";
-import { ThemeProvidor } from "@/components/theme-provider";
+import Navbar from "@/components/custom/navbar";
+import { ThemeProvidor } from "@/components/custom/theme-provider";
 import { SessionProvider } from "next-auth/react";
 
 const geistSans = Geist({

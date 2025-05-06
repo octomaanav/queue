@@ -1,6 +1,6 @@
 'use client'
 
-import { CourseCard } from '@/components/course-card';
+import { CourseCard } from '@/components/custom/course-card';
 import React, {useEffect} from 'react';
 import { Skeleton } from '@/components/ui/skeleton';
 import {getUserCoursesFromSession } from '@/lib/helper/getUserInfo';

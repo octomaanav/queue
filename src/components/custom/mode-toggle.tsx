@@ -2,9 +2,9 @@
 
 import { useTheme } from "next-themes"
 import React from "react"
-import { Button } from "./ui/button";
+import { Button } from "../ui/button";
 import { MoonIcon, SunIcon } from "lucide-react";
-import { Tooltip, TooltipProvider, TooltipContent, TooltipTrigger } from "./ui/tooltip";
+import { Tooltip, TooltipProvider, TooltipContent, TooltipTrigger } from "../ui/tooltip";
 
 export default function ModeToggle() {
     const { theme, setTheme } = useTheme();

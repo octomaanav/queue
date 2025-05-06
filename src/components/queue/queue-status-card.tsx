@@ -6,7 +6,7 @@ import React from "react"
 import { Skeleton } from "../ui/skeleton"
 import { AlarmClock, UserRound } from "lucide-react"
 import { useSession } from "next-auth/react"
-import {AnimatedModal} from "../animated-modal"
+import {AnimatedModal} from "../custom/animated-modal"
 
 interface QueueInfoProps {
     id: string,

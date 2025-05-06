@@ -117,10 +117,19 @@ export const QueueStatusTable:React.FC<QueueStatusTableProps> = ({queue, handleR
     },
     {
       accessorKey: "position",
-      header: "Position",
+      header: ({ column }) => (
+        <Button
+          variant="ghost"
+          // onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        >
+          Position
+          <ArrowUpDown className="ml-2 h-4 w-4" />
+        </Button>
+      ),
       cell: ({ row }) => (
         <div className="capitalize">{row.getValue("position")}</div>
       ),
+      sortingFn: "basic",
     },
     {
       id: "actions",

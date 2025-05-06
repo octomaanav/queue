@@ -1,6 +1,6 @@
 'use client'
 
-import { ShinyText } from "@/components/shiny-text";
+import { ShinyText } from "@/components/custom/shiny-text";
 import { Button } from "../../components/ui/button";
 import { useRouter } from "next/navigation";
 import { signIn } from "next-auth/react";

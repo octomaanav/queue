@@ -1,10 +1,10 @@
 'use client'
 
 import { CalendarPlus, Clock, Users } from "lucide-react"
-import { Card, CardDescription, CardHeader, CardTitle } from "./ui/card"
-import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar"
-import { Button } from "./ui/button"
-import { Badge } from "./ui/badge"
+import { Card, CardDescription, CardHeader, CardTitle } from "../ui/card"
+import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar"
+import { Button } from "../ui/button"
+import { Badge } from "../ui/badge"
 import Link from "next/link"
 
 interface OfficeHoursCardProps {

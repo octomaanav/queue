@@ -2,11 +2,11 @@
 
 import Image from "next/image"
 import React, { useEffect } from "react"
-import LOGO from '../../public/logo.png'
+import LOGO from '../../../public/logo.png'
 import ModeToggle from "./mode-toggle"
-import { Button } from "./ui/button"
+import { Button } from "../ui/button"
 import Link from "next/link"
-import { Avatar, AvatarFallback } from "./ui/avatar"
+import { Avatar, AvatarFallback } from "../ui/avatar"
 import { useSession } from "next-auth/react"
 
 export default function Navbar() {

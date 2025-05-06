@@ -150,51 +150,58 @@ export async function getQueueEntry(office_hours_id : string){
 
 export async function removeFromQueue(removeEntries: Queue[]) {
   try {
-      const session = await getServerSession(authOptions);
-      const access_token = session?.user?.accessToken;
-      if (!access_token || !session) {
-          throw new Error("Session is invalid or access token is missing");
-      }
-      
-      const supabase = await getSupabaseClient({ access_token });
-      if (!supabase) {
-          throw new Error("Supabase client is not initialized");
-      }
+    const session = await getServerSession(authOptions);
+    const access_token = session?.user?.accessToken;
+    if (!access_token || !session) {
+      throw new Error("Session is invalid or access token is missing");
+    }
 
-      // Fetch the queue data for the specified office hours
-      const { data: queueData, error } = await supabase
-          .from('queue')
-          .select('*')
-          .eq('office_hours', removeEntries[0].office_hours)
-          .order('position', { ascending: true });
+    const supabase = await getSupabaseClient({ access_token });
+    if (!supabase) {
+      throw new Error("Supabase client is not initialized");
+    }
 
-      if (error || !queueData) {
-          throw new Error("Error fetching queue data");
-      }
+    const removeIds = removeEntries.map(entry => entry.id);
 
-      const removePositions = new Set(removeEntries.map(entry => entry.id));
+    const { error: deleteError } = await supabase
+      .from("queue")
+      .delete()
+      .in("id", removeIds);
 
-      console.log(removePositions);
+    if (deleteError) {
+      throw new Error("Error deleting entries from the queue");
+    }
 
-      let updatedQueue = queueData.filter(entry => !removePositions.has(entry.id));
+    const { data: queueData, error: fetchError } = await supabase
+      .from("queue")
+      .select("*")
+      .order("position", { ascending: true });
 
-      updatedQueue = updatedQueue.map((entry, index) => ({
-          ...entry,
-          position: index + 1,
-      }));
+    if (fetchError || !queueData) {
+      throw new Error("Error fetching updated queue data");
+    }
 
-      // const updates = updatedQueue.map(entry => 
-      //     supabase.from('queue').update({ position: entry.position }).eq('id', entry.id)
-      // );
+    const updatedQueue = queueData.map((entry, index) => ({
+      ...entry,
+      position: index + 1,
+    }));
 
-      // await Promise.all(updates);
-      return updatedQueue;
+    const updates = updatedQueue.map(entry =>
+      supabase
+        .from("queue")
+        .update({ position: entry.position })
+        .eq("id", entry.id)
+    );
 
+    await Promise.all(updates);
+
+    return updatedQueue;
   } catch (error) {
-      console.error(error);
-      throw new Error("Error while removing the user from the queue");
+    console.error(error);
+    throw new Error("Error while removing the user from the queue");
   }
 }
+
 
 
 export async function leaveQueue(office_hours : string){

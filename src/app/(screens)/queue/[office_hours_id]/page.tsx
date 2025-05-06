@@ -4,34 +4,26 @@ import OfficeHoursInfoCard from "@/components/queue/office-hours-info-card";
 import QueueStatus from "@/components/queue/queue-status-card";
 import { QueueStatusTable } from "@/components/queue/queue-status-table";
 import { Skeleton } from "@/components/ui/skeleton";
-import { getCourseName, getOfficeHoursEntry, getUserFromDatabase } from "@/lib/helper/getFromDatabase";
+import { getCourseName, getOfficeHoursEntry } from "@/lib/helper/getFromDatabase";
 import { getUserCoursesFromSession } from "@/lib/helper/getUserInfo";
 import { getQueue, removeFromQueue } from "@/lib/helper/queueHelper";
 import { signOut, useSession } from "next-auth/react";
 import { useParams } from "next/navigation";
 import React from "react"
 import type { Queue } from "@/types";
+import { QueueForm } from "@/components/queue/queue-form";
 
 interface UserCourse{
     auth_level:string,
     display_name:string,
     name:string,
 }
-
-const announcements = [
-    "Manav will reach 15 minutes late",
-    "Office hours will be closed at 5:00pm",
-    "No office hours today",
-]
-
-
-export default function Queue() {
+export default function QueuePage() {
     const [authLevel, setAuthLevel] = React.useState<"student" | "instructor" | null>(null);
     const [loading, setLoading] = React.useState(true);
     const [course, setCourse] = React.useState<UserCourse>();
     const [queue, setQueue] = React.useState<Queue[]>([]);
     const [error, setError] = React.useState<string | null>(null);
-
     const { data: session, status } = useSession();
     const params = useParams();
     const office_hours_id: string = params?.office_hours_id as string;
@@ -78,19 +70,21 @@ export default function Queue() {
         } else {
             validateQueue();
         }
-    }, [status, session]);
+    }, [status, session, office_hours_id]);
 
     React.useEffect(() => {
         const getQueueInfo = async () => {
             try {
+                if (queue.length > 0) return;
                 setLoading(true);
-                const queue = await getQueue(office_hours_id);
-                if (!queue) {
+                const fetchedQueue = await getQueue(office_hours_id);
+
+                if (!fetchedQueue) {
                     console.error("Error while fetching queue info");
                     return;
                 }
-                if (Array.isArray(queue)) {
-                    setQueue(queue);
+                if (Array.isArray(fetchedQueue)) {
+                    setQueue(fetchedQueue);
                 } else {
                     console.error("Queue is not an array");
                 }
@@ -101,20 +95,13 @@ export default function Queue() {
             }
         };
 
-        if (status === "unauthenticated") {
-            signOut({
-                redirect: true,
-                callbackUrl: "/",
-            });
-        } else {
+        if (status !== "unauthenticated") {
             getQueueInfo();
         }
-    }, [status, session]);
-
+    }, [status, session, office_hours_id, queue]);
 
     const renderSkeletons = () => (
         <div>
-            {/* Skeleton content */}
             {Array.from({ length: 6 }).map((_, index) => (
                 <div key={index} className="flex flex-col mb-3 w-full lg:w-[350px]">
                     <Skeleton className="h-[200px] w-full rounded-xl lg:w-[350px]" />
@@ -123,38 +110,26 @@ export default function Queue() {
         </div>
     );
 
-    const renderError = () => (
-        <div className="text-red-500 text-center mt-6">
-            <p className="text-xl font-semibold">{error}</p>
-        </div>
-    );
-
     const handleRemoveFromQueue = async (queueEntry: Queue[]) => {
         const updatedQueue = await removeFromQueue(queueEntry);
-        console.log(updatedQueue);
-        if (updatedQueue) {
-            // setQueue(updatedQueue);
-            // console.log(removal_status);
-            // setQueue((prevQueue) => prevQueue.filter((entry) => !queueEntry.includes(entry)));
+        console.log("Updated queue:", updatedQueue);
+        if (queueEntry) {
+            setQueue((prevQueue) => {
+                const updatedQueue = prevQueue.filter((entry) => !queueEntry.includes(entry));
+                return updatedQueue.map((entry, index) => ({
+                    ...entry,
+                    position: index + 1,
+                }));
+            });
+        } else {
+            console.error("Error while removing from queue");
         }
-        else{
-            console.error("Error while removing from queue")
-        }
-    }
+    };
 
     const renderStudentView = () => (
         <div className="flex-col space-y-4">
-            <QueueStatus
-                courseName={course?.display_name || ""}
-                totalStudents={queue?.length || 0}
-                office_hours_id={office_hours_id}
-            />
-            {/* <OfficeHoursInfoCard />
-            <AnnouncementCard announcements={announcements} /> */}
         </div>
     );
-
-    console.log(queue)
 
     const renderInstructorView = () => (
         <div className="">
@@ -165,7 +140,6 @@ export default function Queue() {
         </div>
     );
 
-
     if (loading || authLevel === null) {
         return <main className="px-7 py-4">{renderSkeletons()}</main>;
     }
@@ -173,7 +147,6 @@ export default function Queue() {
     if (error) {
         return <main className="px-7 py-4">{error}</main>;
     }
-
 
     return (
         <main className="px-7 py-4">
