@@ -3,16 +3,17 @@ import { useState, useEffect } from "react"
 import type { SessionData } from "@/types/types"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
-import { Clock, Pause, Play, StopCircle, User, BookOpen } from "lucide-react"
+import { Clock, Pause, Play, StopCircle, User, CircleAlert } from "lucide-react"
 
 interface ActiveSessionProps {
   session: SessionData
   onEndSession: () => void
   onTogglePause: () => void
   setTime: (time: number) => void
+  handleDeleteSession: () => void
 }
 
-export function ActiveSession({ session, onEndSession, onTogglePause, setTime }: ActiveSessionProps) {
+export function ActiveSession({ session, onEndSession, onTogglePause, setTime, handleDeleteSession }: ActiveSessionProps) {
   const [elapsedTime, setElapsedTime] = useState(0)
   const [formattedTime, setFormattedTime] = useState("00:00")
   const [pausedTime, setPausedTime] = useState(0) // Track total paused time
@@ -115,9 +116,12 @@ export function ActiveSession({ session, onEndSession, onTogglePause, setTime }:
             </>
           )}
         </Button>
-        <Button onClick={handleEndSession} variant="destructive" className="flex-1">
+        <Button onClick={handleEndSession} variant="default" className="flex-1">
           <StopCircle className="mr-2 h-4 w-4" /> End Session
         </Button>
+        {handleDeleteSession &&<Button onClick={handleDeleteSession} variant="destructive" className="flex-1">
+          <CircleAlert className="mr-2 h-4 w-4" /> Delete Session
+        </Button>}
       </div>
     </div>
   )

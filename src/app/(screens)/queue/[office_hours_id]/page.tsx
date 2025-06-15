@@ -145,9 +145,9 @@ export default function QueuePage() {
   );
 
   // If still loading or auth level is not set
-  // if (loading || authLevel === null) {
-  //   return <main className="px-7 py-4">{renderSkeletons()}</main>;
-  // }
+  if (authLevel === null) {
+    return <main className="px-7 py-4">{renderSkeletons()}</main>;
+  }
 
   // If there is an error, display it
   if (error) {

@@ -19,7 +19,7 @@ import { useSession } from "next-auth/react"
 
 interface ResolutionFormProps {
   student: Student
-  onSubmit: (resolution: { issue: string; resolution: string; feedback: string; email: string }) => void
+  onSubmit: (resolution: { issue: string; resolution: string; feedback: string; taEmail: string; studentEmail: string }) => void
   onCancel: () => void
 }
 
@@ -33,7 +33,7 @@ export function ResolutionForm({ student, onSubmit, onCancel }: ResolutionFormPr
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     if (!session?.user?.email) return
-    onSubmit({ issue, resolution, feedback, email: session.user.email })
+    onSubmit({ issue, resolution, feedback, taEmail: session.user.email, studentEmail: student.email })
   }
 
   return (

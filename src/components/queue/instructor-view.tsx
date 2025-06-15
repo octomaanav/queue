@@ -1,77 +1,7 @@
-// "use client"
-
-// import React from "react";
-// import { CardInputModal } from "../custom/card-input-modal";
-// import { QueueStatusTable } from "./queue-status-table"
-// import type { Queue } from "@/types";
-// import { Button } from "../ui/button";
-
-// interface InstructorViewProps {
-//     queue: Queue[];
-//     handleRemoveFromQueue: (queueEntry: Queue[]) => void
-// }
-
-// export const InstructorView: React.FC<InstructorViewProps> = ({ queue, handleRemoveFromQueue }) => {
-//     const [modalOpen, setModalOpen] = React.useState(false);
-
-//     const handleModalOpen = () => {
-//         setModalOpen(true);
-//     };
-
-//     const handleModalClose = () => {
-//         setModalOpen(false);
-//     };
-
-//     const handleFormSubmit = (formData: FormData) => {
-//         console.log(formData);
-//     }
-
-//     return (
-//         <main>
-//             <QueueStatusTable
-//                 queue={queue}
-//                 handleRemoveFromQueue={handleRemoveFromQueue}
-//                 handleStartSession={() => {}}
-//             />
-//             <div className="flex justify-center">
-//                 <Button
-//                     variant={"primary"}
-//                     size={"default"}
-//                     onClick={handleModalOpen}
-//                     className="font-semibold"
-//                 >
-//                     Add a student
-//                 </Button>
-//             </div>
-
-//             <CardInputModal
-//                 header="Queue Form"
-//                 isOpen={modalOpen}
-//                 onClose={handleModalClose}
-//                 onSubmit={handleFormSubmit}
-//             />
-
-//         </main>
-//     )
-// }
-
-
-
-
 "use client"
-
-import React from "react";
 import { CardInputModal } from "../custom/card-input-modal";
-
 import type { Queue } from "@/types/queue";
 import { Button } from "../ui/button";
-
-interface InstructorViewProps {
-    queue: Queue[];
-    handleRemoveFromQueue: (queueEntry: Queue[]) => void
-}
-
-
 import { useState, useEffect } from "react"
 import { QueueStatusTable } from "./queue-status-table"
 import { ActiveSession } from "@/components/queue/active-session"
@@ -79,16 +9,65 @@ import { ResolutionForm } from "@/components/queue/resolution-form"
 import type { Student, SessionData } from "@/types/types"
 import { Card, CardContent } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { sessionPersistence } from "@/lib/helper/session-persistence";
 
+interface InstructorViewProps {
+    queue: Queue[];
+    handleRemoveFromQueue: (queueEntry: Queue[]) => void
+}
 
 export default function InstructorView({queue, handleRemoveFromQueue}: InstructorViewProps) {
   const [activeSession, setActiveSession] = useState<SessionData | null>(null)
   const [showResolutionForm, setShowResolutionForm] = useState(false)
   const [activeTab, setActiveTab] = useState<string>("queue")
   const [time, setTimeTaken] = useState<number>(0)
+  const [modalOpen, setModalOpen] = useState(false);
+
+  const handleModalOpen = () => {
+    setModalOpen(true);
+  };
+
+  const handleModalClose = () => {
+    setModalOpen(false);
+  };
+
+  const handleFormSubmit = (formData: FormData) => {
+    console.log(formData);
+  };
 
 
+  useEffect(() => {
+    const storedSession = sessionPersistence.loadSession();
+    if (storedSession) {
+      const now = new Date()
+      const sessionAge = now.getTime() - new Date(storedSession.startTime).getTime()
+      const maxSessionAge = 1000 * 60 * 60 * 4
+      if (sessionAge < maxSessionAge) {
+        setActiveSession(storedSession)
+        setActiveTab("active-session")
+      } else {
+        sessionPersistence.clearSession()
+      }
+    }
+  }, []);
 
+  useEffect(() => {
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      if (activeSession && !showResolutionForm) {
+        e.preventDefault()
+        e.returnValue = "You have an active session. Are you sure you want to leave?"
+        return "You have an active session. Are you sure you want to leave?"
+      }
+    }
+
+    if (activeSession) {
+      window.addEventListener("beforeunload", handleBeforeUnload)
+    }
+
+    return () => {
+      window.removeEventListener("beforeunload", handleBeforeUnload)
+    }
+  }, [activeSession, showResolutionForm])
 
   // Start a session with a student
   const startSession = (queue: Queue) => {
@@ -100,15 +79,17 @@ export default function InstructorView({queue, handleRemoveFromQueue}: Instructo
       created_at: new Date().toISOString(),
       position: queue.position,
     }
-    setActiveSession({
+    const newSession = {
       id: `session-${Date.now()}`,
       student,
       startTime: new Date(),
       isPaused: false,
-    })
-
-
-    // Switch to active session tab
+    }
+    setActiveSession(newSession)
+    if (sessionPersistence.hasStoredSession()){
+        sessionPersistence.clearSession()
+    }
+    sessionPersistence.saveSession(newSession)
     setActiveTab("active-session")
 
   }
@@ -123,25 +104,36 @@ export default function InstructorView({queue, handleRemoveFromQueue}: Instructo
   // Pause or resume the current session
   const togglePauseSession = () => {
     if (activeSession) {
-      setActiveSession({
-        ...activeSession,
-        isPaused: !activeSession.isPaused,
-      })
-
-      const action = activeSession.isPaused ? "Resumed" : "Paused"
+        const updatedSession = {
+            ...activeSession,
+            isPaused: !activeSession.isPaused,
+          }
+    
+        setActiveSession(updatedSession)
+    
+        // Save updated session to localStorage
+        sessionPersistence.saveSession(updatedSession)
     }
   }
 
-  const submitResolution = (resolution: { issue: string; resolution: string; feedback: string; email: string; time?: number }) => {
+  const submitResolution = (resolution: { issue: string; resolution: string; feedback: string; taEmail: string; studentEmail: string; time?: number }) => {
     resolution.time = time
     console.log(resolution)
+    sessionPersistence.clearSession()
     setActiveSession(null)
     setShowResolutionForm(false)
     setActiveTab("queue")
-    // setNewQueue(newQueue.filter(q => q.id !== activeSession?.student.id))
+    handleRemoveFromQueue(queue.filter(q => q.email === resolution.studentEmail))
   }
 
-
+  const handleDeleteSession = () => {
+    if (activeSession) {
+      sessionPersistence.clearSession()
+      setActiveSession(null)
+      setShowResolutionForm(false)
+      setActiveTab("queue")
+    }
+  }
 
   return (
     <div className="container mx-auto p-4 max-w-7xl">
@@ -167,7 +159,12 @@ export default function InstructorView({queue, handleRemoveFromQueue}: Instructo
           {activeSession && (
             <Card>
               <CardContent className="pt-6">
-                <ActiveSession session={activeSession} onEndSession={endSession} onTogglePause={togglePauseSession} setTime={setTimeTaken} />
+                <ActiveSession 
+                    session={activeSession} 
+                    onEndSession={endSession} 
+                    onTogglePause={togglePauseSession} 
+                    setTime={setTimeTaken} 
+                    handleDeleteSession={handleDeleteSession} />
               </CardContent>
             </Card>
           )}
@@ -181,6 +178,24 @@ export default function InstructorView({queue, handleRemoveFromQueue}: Instructo
           onCancel={() => setShowResolutionForm(false)}
         />
       )}
+
+        <div className="flex justify-center mt-4">
+            <Button
+              variant={"primary"}
+              size={"default"}
+              onClick={handleModalOpen}
+              className="font-semibold"
+            >
+              Add a student
+            </Button>
+        </div>
+
+            <CardInputModal
+                header="Queue Form"
+                isOpen={modalOpen}
+                onClose={handleModalClose}
+                onSubmit={handleFormSubmit}
+            />
     </div>
   )
 }

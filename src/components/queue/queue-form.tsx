@@ -27,16 +27,16 @@ interface QueueFormProps {
 }
 
 const studentFormSchema = z.object({
-  // ubit: z.string().min(1, "Enter a valid UBIT Name").max(10),
-  // name: z.string().min(1, "Enter a valid name").max(20),
+  ubit: z.string().min(1, "Enter a valid UBIT Name").max(10),
+  name: z.string().min(1, "Enter a valid name").max(20),
   issue: z.string().min(1, "Enter a valid reason").max(100),
   assignment: z.string().min(1, "Please select the assignment"),
 });
 
 const taFormSchema = z.object({
-  // ubit: z.string().min(1, "Enter a valid UBIT Name").max(10),
-  // name: z.string().min(1, "Enter a valid name").max(20),
-  resolution: z.string().min(1, "Enter a valid resolution").max(100),
+  ubit: z.string().min(1, "Enter a valid UBIT Name").max(10),
+  name: z.string().min(1, "Enter a valid name").max(20),
+  issue: z.string().min(1, "Enter a valid reason").max(100),
   assignment: z.string().min(1, "Please select the assignment"),
 });
 
@@ -46,10 +46,9 @@ export const QueueForm: React.FC<QueueFormProps> = ({ role, onSubmit, onClose })
   const form = useForm<z.infer<typeof schema>>({
     resolver: zodResolver(schema),
     defaultValues: {
-      // ubit: "",
-      // name: "",
+      ubit: "",
+      name: "",
       issue: "",
-      resolution: "",
       assignment: "",
     },
   });
@@ -62,7 +61,6 @@ export const QueueForm: React.FC<QueueFormProps> = ({ role, onSubmit, onClose })
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(handleFormSubmit)} className="space-y-4">
-        {/* UBIT
         <FormField
           control={form.control}
           name="ubit"
@@ -70,13 +68,12 @@ export const QueueForm: React.FC<QueueFormProps> = ({ role, onSubmit, onClose })
             <FormItem>
               <FormLabel>UBIT</FormLabel>
               <FormControl>
-                <Input type="text" placeholder="Enter your UBIT" {...field} />
+                <Input type="text" placeholder="Enter Student's UBIT" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
           )}
-        /> */}
-        {/* Name
+        />
         <FormField
           control={form.control}
           name="name"
@@ -84,12 +81,12 @@ export const QueueForm: React.FC<QueueFormProps> = ({ role, onSubmit, onClose })
             <FormItem>
               <FormLabel>Name</FormLabel>
               <FormControl>
-                <Input type="text" placeholder="Enter your Name" {...field} />
+                <Input type="text" placeholder="Enter Student's Name" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
           )}
-        /> */}
+        />
 
         {/* Assignment Type */}
         <FormField
@@ -101,7 +98,7 @@ export const QueueForm: React.FC<QueueFormProps> = ({ role, onSubmit, onClose })
               <Select onValueChange={field.onChange} defaultValue={field.value}>
                 <FormControl>
                   <SelectTrigger className="bg-transparent text-muted-foreground">
-                    <SelectValue placeholder="Select your assignment" />
+                    <SelectValue placeholder="Select the assignment" />
                   </SelectTrigger>
                 </FormControl>
                 <SelectContent className=" text-muted-foreground">
@@ -116,36 +113,20 @@ export const QueueForm: React.FC<QueueFormProps> = ({ role, onSubmit, onClose })
           )}
         />
 
-        {/* Role-Specific Field */}
-        {role === "student" ? (
-          <FormField
-            control={form.control}
-            name="issue"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Issue</FormLabel>
-                <FormControl>
-                  <Input type="text" placeholder="Describe your issue" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        ) : (
-          <FormField
-            control={form.control}
-            name="resolution"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Resolution</FormLabel>
-                <FormControl>
-                  <Input type="text" placeholder="Describe the resolution" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        )}
+        <FormField
+          control={form.control}
+          name="issue"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Issue</FormLabel>
+              <FormControl>
+                <Input type="text" placeholder="Describe the issue" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        
         <div className="flex justify-center py-4 px-5 gap-3">
           <Button type="button" variant={"primary"} size={"default"} className="w-1/2 font-semibold" onClick={onClose}>Cancel</Button>
           <Button type="submit" variant={"default"} size={"default"} className="w-1/2 font-semibold">Join Queue</Button>
