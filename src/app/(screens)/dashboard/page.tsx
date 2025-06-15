@@ -81,29 +81,3 @@ export default function Dashboard() {
   );
 }
 
-// 'use client';
-
-// import { useSession } from "next-auth/react";
-
-// export default function Dashboard() {
-//   const { data: session, status } = useSession();
-
-//   // Debugging log
-//   console.log(session);
-
-//   if (status === "loading") {
-//     return <p>Loading...</p>;
-//   }
-  
-//   if (status === "unauthenticated") {
-//     return <p>You need to log in first!</p>;
-//   }
-
-//   return (
-//     <div>
-//       <h1>Welcome, {session?.user?.name}</h1>
-//       <p>Your email: {session?.user?.email}</p>
-//     </div>
-//   );
-// }
-

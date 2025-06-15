@@ -163,7 +163,7 @@ export function AppSidebar() {
         </SidebarGroup>
       </SidebarContent>
       <SidebarFooter>
-      <DropdownMenu>
+      <DropdownMenu modal={false}>
           <DropdownMenuTrigger asChild>
             <SidebarMenuButton className="h-10">
               <div suppressHydrationWarning={true} className="dark:bg-slate-800 bg-gray-300 p-1.5 rounded-full">

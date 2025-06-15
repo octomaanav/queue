@@ -4,7 +4,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "../globals.css";
 import Navbar from "@/components/custom/navbar";
-import { ThemeProvidor } from "@/components/custom/theme-provider";
+import { ThemeProvider } from "@/components/custom/theme-provider";
 import { SessionProvider } from "next-auth/react";
 
 const geistSans = Geist({
@@ -34,7 +34,7 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <SessionProvider>
-          <ThemeProvidor
+          <ThemeProvider
           attribute={"class"}
           defaultTheme="system"
           enableSystem
@@ -42,7 +42,7 @@ export default function RootLayout({
           >
             <Navbar />
             <div>{children}</div>
-          </ThemeProvidor>
+          </ThemeProvider>
         </SessionProvider>
       </body>
     </html>

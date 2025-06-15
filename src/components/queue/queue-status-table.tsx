@@ -1,20 +1,3 @@
-// import React from "react";
-// import { Queue } from "@/types";
-// import { Card } from "../ui/card";
-
-// interface QueueStatusTableProps {
-//     queue: Queue[]
-// }
-
-// export const QueueStatusTable: React.FC<QueueStatusTableProps> = ({queue}) => {
-//     console.log(queue)
-//     return (
-//         <div className="border b-1 border-muted rounded-md p-4">
-//         </div>
-//     )
-// }
-
-
 "use client"
 
 import * as React from "react"
@@ -65,10 +48,11 @@ export type Queue = {
 export interface QueueStatusTableProps {
     queue : Queue[]
     handleRemoveFromQueue : (queueEntry : Queue[]) => void
+    handleStartSession : (queueEntry : Queue) => void
 }
 
 
-export const QueueStatusTable:React.FC<QueueStatusTableProps> = ({queue, handleRemoveFromQueue}) => {
+export const QueueStatusTable:React.FC<QueueStatusTableProps> = ({queue, handleRemoveFromQueue, handleStartSession}) => {
   const [sorting, setSorting] = React.useState<SortingState>([
     { id: "position", desc: false },
   ])
@@ -117,15 +101,7 @@ export const QueueStatusTable:React.FC<QueueStatusTableProps> = ({queue, handleR
     },
     {
       accessorKey: "position",
-      header: ({ column }) => (
-        <Button
-          variant="ghost"
-          // onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-        >
-          Position
-          <ArrowUpDown className="ml-2 h-4 w-4" />
-        </Button>
-      ),
+      header: "Position",
       cell: ({ row }) => (
         <div className="capitalize">{row.getValue("position")}</div>
       ),
@@ -139,7 +115,7 @@ export const QueueStatusTable:React.FC<QueueStatusTableProps> = ({queue, handleR
         const queue = row.original
   
         return (
-          <DropdownMenu>
+          <DropdownMenu modal={false}>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" className="h-8 w-8 p-0">
                 <span className="sr-only">Open menu</span>
@@ -148,11 +124,10 @@ export const QueueStatusTable:React.FC<QueueStatusTableProps> = ({queue, handleR
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               <DropdownMenuLabel>Actions</DropdownMenuLabel>
-              <DropdownMenuItem>
-                <Pause style={{color:"#b4b4b4"}}/>
-                Hold
+              <DropdownMenuItem className="cursor-pointer" onClick={() => handleStartSession(queue)}>
+                Start Session
               </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => handleRemoveFromQueue([queue])}>
+              <DropdownMenuItem className="cursor-pointer" onClick={() => handleRemoveFromQueue([queue])}>
                 <Trash color="red"/>
                 Remove
               </DropdownMenuItem>
@@ -201,12 +176,14 @@ export const QueueStatusTable:React.FC<QueueStatusTableProps> = ({queue, handleR
           className="max-w-sm"
         />
         <DropdownMenu>
-          <DropdownMenuTrigger asChild>
+          <DropdownMenuTrigger asChild >
+            
             <Button variant="outline" className="ml-auto">
               Columns <ChevronDown />
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
+          <DropdownMenuContent align="end"
+          >
             {table
               .getAllColumns()
               .filter((column) => column.getCanHide())
@@ -227,8 +204,9 @@ export const QueueStatusTable:React.FC<QueueStatusTableProps> = ({queue, handleR
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
-      <div className="rounded-md border">
-        <Table>
+      <div className="overflow-x-auto w-full rounded-md border">
+        <div className="min-w-full">
+        <Table className="min-w-full">
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>
@@ -276,6 +254,7 @@ export const QueueStatusTable:React.FC<QueueStatusTableProps> = ({queue, handleR
             )}
           </TableBody>
         </Table>
+        </div>
       </div>
       <div className="flex items-center justify-end space-x-2 py-4">
         <div className="flex-1 text-sm text-muted-foreground">

@@ -16,7 +16,7 @@ export async function getQueue(office_hours_id: string) {
       throw new Error("Session is invalid or access token is missing");
     }
 
-    const supabase = await getSupabaseClient({ access_token });
+    const supabase = await getSupabaseClient(access_token);
     if (!supabase) {
       throw new Error("Supabase client is not initialized");
     }
@@ -27,8 +27,12 @@ export async function getQueue(office_hours_id: string) {
       .select("*")
       .eq("office_hours", office_hours_id);
 
-    if (error) {
-      throw new Error("Error while fetching queue");
+      console.log(office_hours_id)
+
+      
+      if (error) {
+        console.log("Error:", error);
+      // throw new Error("Error while fetching queue");
     }
 
     if (!queue || queue.length === 0) {
@@ -76,7 +80,7 @@ export async function JoinQueue(office_hours_id: string) {
         throw new Error("Session is invalid or access token is missing");
       }
   
-      const supabase = await getSupabaseClient({ access_token });
+      const supabase = await getSupabaseClient(access_token );
       if (!supabase) {
         throw new Error("Supabase client is not initialized");
       }
@@ -125,7 +129,7 @@ export async function getQueueEntry(office_hours_id : string){
         if(!access_token || !session){
             throw new Error("Session is invalid or access token is missing");
         }
-        const supabase = await getSupabaseClient({ access_token });
+        const supabase = await getSupabaseClient(access_token );
         if (!supabase) {
             throw new Error("Supabase client is not initialized");
         }
@@ -156,7 +160,7 @@ export async function removeFromQueue(removeEntries: Queue[]) {
       throw new Error("Session is invalid or access token is missing");
     }
 
-    const supabase = await getSupabaseClient({ access_token });
+    const supabase = await getSupabaseClient(access_token );
     if (!supabase) {
       throw new Error("Supabase client is not initialized");
     }
@@ -212,7 +216,7 @@ export async function leaveQueue(office_hours : string){
     if (!access_token || !session) {
       throw new Error("Session is invalid or access token is missing");
     }
-    const supabase = await getSupabaseClient({ access_token });
+    const supabase = await getSupabaseClient(access_token );
     if (!supabase) {
       throw new Error("Supabase client is not initialized");
     }

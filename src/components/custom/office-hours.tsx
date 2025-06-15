@@ -17,9 +17,6 @@ interface OfficeHoursCardProps {
 }
 
 export const OfficeHoursCard : React.FC<OfficeHoursCardProps> = ({id, location, start, end,day, instructors}) => {
-  const handleClick = () => {
-
-  }
   const convertTime = (time: number): string => {
     const hours = Math.floor(time / 100); // Extract hours
     const minutes = time % 100; // Extract minutes

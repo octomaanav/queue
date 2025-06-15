@@ -5,11 +5,10 @@ import { NextResponse } from "next/server";
 import { getSupabaseClient } from '../../../supabase';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '../auth/auth-option';
-import { sup } from 'framer-motion/client';
 
 export async function pushUserToDataBase({name, email, access_token}: {name: string, email: string, access_token:string}){
     const userId = uuid();
-    const supabase = await getSupabaseClient({access_token});
+    const supabase = await getSupabaseClient(access_token);
 
     if (!supabase) {
         return NextResponse.json({error: "Supabase client is not initialized"}, {status: 500});
@@ -55,7 +54,7 @@ export async function getUserFromDatabase(userId : string){
         return NextResponse.json({error: "Session is invalid or access token is missing"}, {status: 500});
     }
 
-    const supabase = await getSupabaseClient({access_token});
+    const supabase = await getSupabaseClient(access_token);
 
     if (!supabase) {
         return NextResponse.json({error: "Supabase client is not initialized"}, {status: 500});
@@ -85,7 +84,7 @@ export async function getOfficeHoursSchedule(courseId : string){
     if(!access_token || !session){
         throw new Error("Session is invalid or access token is missing");
     }
-    const supabase = await getSupabaseClient({access_token});
+    const supabase = await getSupabaseClient(access_token);
     if (!supabase) {
         throw new Error("Supabase client is not initialized");
     }
@@ -118,7 +117,7 @@ export const getCourseId = async (courseName : string, courseCode : string) => {
     if(!access_token || !session){
         throw new Error("Session is invalid or access token is missing");
     }
-    const supabase = await getSupabaseClient({access_token});
+    const supabase = await getSupabaseClient(access_token);
     if (!supabase) {
         throw new Error("Supabase client is not initialized");
     }
@@ -130,6 +129,8 @@ export const getCourseId = async (courseName : string, courseCode : string) => {
         .eq('name', courseName)
         .eq('code', courseCode)
         .single();
+
+        console.log(course)
 
         if(course == null){
             return null
@@ -154,7 +155,7 @@ export const getOfficeHoursEntry = async (officeHoursId : string) => {
         throw new Error("Session is invalid or access token is missing");
     }
 
-    const supabase = await getSupabaseClient({access_token});
+    const supabase = await getSupabaseClient(access_token);
 
     if (!supabase) {
         throw new Error("Supabase client is not initialized");
@@ -192,7 +193,7 @@ export const getCourseName = async (courseId : string) => {
         throw new Error("Session is invalid or access token is missing");
     }
 
-    const supabase = await getSupabaseClient({access_token});
+    const supabase = await getSupabaseClient(access_token);
 
     if (!supabase) {
         throw new Error("Supabase client is not initialized");
