@@ -130,8 +130,6 @@ export const getCourseId = async (courseName : string, courseCode : string) => {
         .eq('code', courseCode)
         .single();
 
-        console.log(course)
-
         if(course == null){
             return null
         }

@@ -21,3 +21,10 @@ export interface Student {
     resolution: string
     feedback: string
   }
+
+  export interface UserCourse {
+    auth_level: string;
+    display_name: string;
+    name: string;
+    semester: string;
+  }

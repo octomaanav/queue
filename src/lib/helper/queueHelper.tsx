@@ -27,8 +27,6 @@ export async function getQueue(office_hours_id: string) {
       .select("*")
       .eq("office_hours", office_hours_id);
 
-      console.log(office_hours_id)
-
       
       if (error) {
         console.log("Error:", error);
@@ -81,6 +79,7 @@ export async function JoinQueue(office_hours_id: string) {
       }
   
       const supabase = await getSupabaseClient(access_token );
+
       if (!supabase) {
         throw new Error("Supabase client is not initialized");
       }
@@ -139,6 +138,7 @@ export async function getQueueEntry(office_hours_id : string){
         .eq('office_hours', office_hours_id)
         .eq('student', userID)
         .single();
+
 
         if(data == null){
             return null

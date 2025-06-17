@@ -10,12 +10,10 @@ import React from "react";
 import type { Queue } from "@/types";
 import { QueueForm } from "@/components/queue/queue-form";
 import InstructorView from "@/components/queue/instructor-view";
+import StudentView from "@/components/queue/student-view";
+import { UserCourse } from "@/types/types";
 
-interface UserCourse {
-  auth_level: string;
-  display_name: string;
-  name: string;
-}
+
 
 export default function QueuePage() {
   const [authLevel, setAuthLevel] = React.useState<"student" | "instructor" | null>(null);
@@ -130,8 +128,11 @@ export default function QueuePage() {
 
   const renderStudentView = () => (
     <div className="flex-col space-y-4">
-      <h1 className="md:text-3xl text-2xl font-bold mb-4">Student Queue</h1>
-      {/* Add the student-specific content here */}
+      <StudentView 
+        queue={queue} 
+        course={course!}
+        office_hours_id={office_hours_id}
+      />
     </div>
   );
 

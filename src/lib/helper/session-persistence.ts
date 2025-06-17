@@ -2,6 +2,59 @@ import type { SessionData } from "../../types/types"
 
 const SESSION_STORAGE_KEY = "active_office_hours_session"
 
+const STUDENT_SESSION_STORAGE_KEY = "active_student_session"
+
+interface StudentSessionData {
+  hasJoinedQueue : boolean,
+  sessionStatus : "waiting" | "active" | "completed",
+  queuePosition : number,
+  office_hours_id : string
+}
+
+export const studentSessionPersistence = {
+  saveSession: (session : StudentSessionData) => {
+    try {
+      if(session){
+        localStorage.setItem(STUDENT_SESSION_STORAGE_KEY, JSON.stringify(session))
+      }else{
+        localStorage.removeItem(STUDENT_SESSION_STORAGE_KEY)
+      }
+    } catch (error) {
+      console.error("Error saving student session to localStorage:", error)
+    }
+  },
+
+  loadSession: (): StudentSessionData | null => {
+    try {
+      const storedSession = localStorage.getItem(STUDENT_SESSION_STORAGE_KEY)
+      if(storedSession){
+        return JSON.parse(storedSession)
+      }
+      return null
+    } catch (error) {
+      console.error("Error loading student session from localStorage:", error)
+      return null
+    }
+  },
+
+  clearSession: () => {
+    try {
+      localStorage.removeItem(STUDENT_SESSION_STORAGE_KEY)
+    } catch (error) {
+      console.error("Error clearing student session from localStorage:", error)
+    }
+  },
+
+  hasStoredSession: (): boolean => {
+    try {
+      return localStorage.getItem(STUDENT_SESSION_STORAGE_KEY) !== null
+    } catch (error) {
+      return false
+    }
+  }
+}
+
+
 export const sessionPersistence = {
   // Save session to localStorage
   saveSession: (session: SessionData | null) => {
