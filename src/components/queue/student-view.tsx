@@ -65,7 +65,7 @@ export default function StudentView({queue, course, office_hours_id}:StudentView
                   <p className="text-sm text-muted-foreground">Course</p>
                   <p className="font-semibold flex items-center gap-1">
                     <BookOpen className="h-4 w-4" />
-                    {course.name}
+                    {course.display_name}
                   </p>
                 </div>
               </div>

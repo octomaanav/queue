@@ -30,14 +30,12 @@ const studentFormSchema = z.object({
   ubit: z.string().min(1, "Enter a valid UBIT Name").max(10),
   name: z.string().min(1, "Enter a valid name").max(20),
   issue: z.string().min(1, "Enter a valid reason").max(100),
-  assignment: z.string().min(1, "Please select the assignment"),
 });
 
 const taFormSchema = z.object({
   ubit: z.string().min(1, "Enter a valid UBIT Name").max(10),
   name: z.string().min(1, "Enter a valid name").max(20),
   issue: z.string().min(1, "Enter a valid reason").max(100),
-  assignment: z.string().min(1, "Please select the assignment"),
 });
 
 const schema = z.union([studentFormSchema, taFormSchema]);
@@ -49,7 +47,6 @@ export const QueueForm: React.FC<QueueFormProps> = ({ role, onSubmit, onClose })
       ubit: "",
       name: "",
       issue: "",
-      assignment: "",
     },
   });
 
@@ -89,7 +86,7 @@ export const QueueForm: React.FC<QueueFormProps> = ({ role, onSubmit, onClose })
         />
 
         {/* Assignment Type */}
-        <FormField
+        {/* <FormField
           control={form.control}
           name="assignment"
           render={({ field }) => (
@@ -111,7 +108,7 @@ export const QueueForm: React.FC<QueueFormProps> = ({ role, onSubmit, onClose })
               <FormMessage />
             </FormItem>
           )}
-        />
+        /> */}
 
         <FormField
           control={form.control}

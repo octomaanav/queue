@@ -14,9 +14,10 @@ import { sessionPersistence } from "@/lib/helper/session-persistence";
 interface InstructorViewProps {
     queue: Queue[];
     handleRemoveFromQueue: (queueEntry: Queue[]) => void
+    office_hours_id: string
 }
 
-export default function InstructorView({queue, handleRemoveFromQueue}: InstructorViewProps) {
+export default function InstructorView({queue, handleRemoveFromQueue, office_hours_id}: InstructorViewProps) {
   const [activeSession, setActiveSession] = useState<SessionData | null>(null)
   const [showResolutionForm, setShowResolutionForm] = useState(false)
   const [activeTab, setActiveTab] = useState<string>("queue")
@@ -32,10 +33,8 @@ export default function InstructorView({queue, handleRemoveFromQueue}: Instructo
   };
 
   const handleFormSubmit = (formData: FormData) => {
-    console.log(formData);
-  };
-
-
+    console.log(formData)
+  }
   useEffect(() => {
     const storedSession = sessionPersistence.loadSession();
     if (storedSession) {
@@ -70,34 +69,48 @@ export default function InstructorView({queue, handleRemoveFromQueue}: Instructo
   }, [activeSession, showResolutionForm])
 
   // Start a session with a student
-  const startSession = (queue: Queue) => {
-    const student = {
-      id: queue.id,
-      name: queue.name,
-      email: queue.email,
-      status: "in_progress" as const,
-      created_at: new Date().toISOString(),
-      position: queue.position,
+  const startSession = async (queue: Queue) => {
+    try {
+      const student = {
+        id: queue.id,
+        name: queue.name,
+        email: queue.email,
+        status: "active" as const,
+        created_at: new Date().toISOString(),
+        position: queue.position,
+      }
+      const newSession = {
+        id: `session-${Date.now()}`,
+        student,
+        startTime: new Date(),
+        isPaused: false,
+      }
+      const response = await fetch(`/api/queue/session/update`, {
+        method: "POST",
+        body: JSON.stringify({id: queue.id, status: "active"}),
+      })  
+      if (!response.ok) {
+        throw new Error("Failed to start session")
+      }
+      setActiveSession(newSession)
+      if (sessionPersistence.hasStoredSession()){
+          sessionPersistence.clearSession()
+      }
+      sessionPersistence.saveSession(newSession)
+      setActiveTab("active-session")
+      
+    } catch (error) {
+      console.error("Error while starting session:", error)
     }
-    const newSession = {
-      id: `session-${Date.now()}`,
-      student,
-      startTime: new Date(),
-      isPaused: false,
-    }
-    setActiveSession(newSession)
-    if (sessionPersistence.hasStoredSession()){
-        sessionPersistence.clearSession()
-    }
-    sessionPersistence.saveSession(newSession)
-    setActiveTab("active-session")
 
   }
 
   // End the current session
-  const endSession = () => {
-    if (activeSession) {
+  const endSession = async () => {
+    try {
       setShowResolutionForm(true)
+    } catch (error) {
+      console.error("Error while ending session:", error)
     }
   }
 
@@ -126,12 +139,23 @@ export default function InstructorView({queue, handleRemoveFromQueue}: Instructo
     handleRemoveFromQueue(queue.filter(q => q.email === resolution.studentEmail))
   }
 
-  const handleDeleteSession = () => {
-    if (activeSession) {
-      sessionPersistence.clearSession()
-      setActiveSession(null)
-      setShowResolutionForm(false)
-      setActiveTab("queue")
+  const handleDeleteSession = async () => {
+    try {
+      const response = await fetch(`/api/queue/session/update`, {
+        method: "POST",
+        body: JSON.stringify({id: activeSession?.student.id, status: "waiting"}),
+      })
+      if (!response.ok) {
+        throw new Error("Failed to end session")
+      }
+      if (activeSession) {
+        sessionPersistence.clearSession()
+        setActiveSession(null)
+        setShowResolutionForm(false)
+        setActiveTab("queue")
+      }
+    } catch (error) {
+      console.error("Error while deleting session:", error)
     }
   }
 

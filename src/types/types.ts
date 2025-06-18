@@ -4,7 +4,7 @@ export interface Student {
     id: string
     name: string
     email: string
-    status: "waiting" | "in_progress"
+    status: "waiting" | "active"
     created_at: string
     position: number
   }

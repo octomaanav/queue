@@ -7,8 +7,8 @@ const STUDENT_SESSION_STORAGE_KEY = "active_student_session"
 interface StudentSessionData {
   hasJoinedQueue : boolean,
   sessionStatus : "waiting" | "active" | "completed",
-  queuePosition : number,
-  office_hours_id : string
+  office_hours_id : string,
+  studentId : string
 }
 
 export const studentSessionPersistence = {

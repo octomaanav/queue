@@ -175,7 +175,7 @@ export const QueueStatusTable:React.FC<QueueStatusTableProps> = ({queue, handleR
           }
           className="max-w-sm"
         />
-        <DropdownMenu>
+        <DropdownMenu modal={false}>
           <DropdownMenuTrigger asChild >
             
             <Button variant="outline" className="ml-auto">

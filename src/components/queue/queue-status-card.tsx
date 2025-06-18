@@ -16,6 +16,7 @@ import { Badge } from "../ui/badge"
 import { Queue } from "@/types"
 import { studentSessionPersistence } from "@/lib/helper/session-persistence"
 
+
 interface QueueStatusProps {
   queue: Queue[]
   courseName: string
@@ -36,12 +37,13 @@ export default function QueueStatus({ queue, courseName, office_hours_id }: Queu
   const estimatedWaitTime = queueData.length * 5
 
   useEffect(() => {
-    const storedSession = studentSessionPersistence.loadSession()
-    if(studentSessionPersistence.hasStoredSession() && storedSession != null){
+    const storedSession = studentSessionPersistence.loadSession();
+    if(storedSession){
       setHasJoinedQueue(storedSession.hasJoinedQueue)
       setSessionStatus(storedSession.sessionStatus)
     }
   }, [])
+
 
   useEffect(() => {
     const fetchQueue = async () => {
@@ -50,58 +52,91 @@ export default function QueueStatus({ queue, courseName, office_hours_id }: Queu
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ office_hours_id }),
-        })
-        const data = await response.json()
-        setQueueData(data)
+        });
+  
+        const data: Queue[] = await response.json();
+        setQueueData(data);
+  
+        const storedSession = studentSessionPersistence.loadSession();
+        if (!storedSession || !storedSession.studentId) return;
+  
+        const studentEntry = data.find(entry => entry.studentID === storedSession.studentId);
+        if (!studentEntry){
+          setHasJoinedQueue(false)
+          setSessionStatus("waiting")
+          return
+        }
+  
+        // Set position
+        setQueuePosition(studentEntry.position);
+  
+        if (studentEntry.position === 1 && sessionStatus !== "active") {
+          setSessionStatus("active");
+          studentSessionPersistence.saveSession({
+            ...storedSession,
+            sessionStatus: "active",
+          });
+        } else if (studentEntry.position > 1 && sessionStatus !== "waiting") {
+          setSessionStatus("waiting");
+          studentSessionPersistence.saveSession({
+            ...storedSession,
+            sessionStatus: "waiting",
+          });
+        }
+  
+        setHasJoinedQueue(true);
       } catch (err) {
-        console.error("Failed to fetch queue:", err)
-      }finally{
-        setLoading(false)
+        console.error("Failed to fetch queue:", err);
+      } finally {
+        setLoading(false);
       }
-    }
+    };
   
-    fetchQueue()
-    const interval = setInterval(fetchQueue, 1000 * 10) // Poll every 10 seconds
+    fetchQueue();
+    const interval = setInterval(fetchQueue, 5000);
+    return () => clearInterval(interval);
+  }, [office_hours_id, sessionStatus]);
   
-    return () => clearInterval(interval) // Cleanup on unmount
-  }, [office_hours_id])
   
   const handleJoinQueue = async () => {
     try {
-      setIsJoining(true)
+      setIsJoining(true);
       const response = await fetch("/api/queue/join", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({ office_hours_id }),
-      })
+      });
   
       if (!response.ok) {
-        throw new Error("Failed to join the queue")
+        throw new Error("Failed to join the queue");
       }
   
-      const data = await response.json()
-      if (data?.position != null) {
-        setQueuePosition(data.position)
-        setHasJoinedQueue(true)
-        setSessionStatus("waiting")
+      const data = await response.json();
+      const { position, student } = data;
+  
+      if (position != null && student != null) {
+        setQueuePosition(position);
+        setHasJoinedQueue(true);
+        setSessionStatus("waiting");
+  
         studentSessionPersistence.saveSession({
           hasJoinedQueue: true,
           sessionStatus: "waiting",
-          queuePosition: data.position,
-          office_hours_id
-        })
+          office_hours_id,
+          studentId: student,
+        });
       } else {
-        throw new Error("No position returned")
+        throw new Error("Position or student ID missing");
       }
-  
     } catch (error) {
-      console.error("Join error:", error)
+      console.error("Join error:", error);
     } finally {
-      setIsJoining(false)
+      setIsJoining(false);
     }
-  }
+  };
+  
   
   const handleLeaveQueue = async () => {
     try {
@@ -130,9 +165,9 @@ export default function QueueStatus({ queue, courseName, office_hours_id }: Queu
     }
   }
 
-  const handleEndSession = () => {
-    setSessionStatus("completed")
-  }
+//   const handleEndSession = () => {
+//     setSessionStatus("completed")
+//   }
 
   const renderSkeleton = () => (
     <div className="flex flex-col mb-2 w-full">
@@ -228,25 +263,28 @@ export default function QueueStatus({ queue, courseName, office_hours_id }: Queu
                 </div>
 
                 <Separator />
+                <Button loading={isJoining} variant="destructive" className="w-full mt-4" onClick={handleLeaveQueue}>
+                  Leave Queue
+                </Button>
 
-                <div className="text-center">
+                {/* <div className="text-center">
                   <p className="text-sm text-muted-foreground mb-2">Session Duration</p>
                   <p className="text-3xl font-mono font-bold">{sessionTimer}</p>
-                </div>
+                </div> */}
 
-                <Button onClick={handleEndSession} className="w-full" variant="outline">
-                  End Session
-                </Button>
+                {/* <Button onClick={handleLeaveQueue} className="w-full" variant="outline">
+                  Quit Session
+                </Button> */}
               </>
             )}
 
-            {sessionStatus === "completed" && (
+            {/* {sessionStatus === "completed" && (
               <div className="text-center py-6">
                 <CheckCircle className="mx-auto h-16 w-16 text-green-500" />
                 <h3 className="text-xl font-semibold mt-4 text-green-700">Session Complete!</h3>
                 <p className="text-muted-foreground">Thanks for attending office hours!</p>
               </div>
-            )}
+            )} */}
           </CardContent>
         </Card>
       )}
@@ -262,3 +300,4 @@ export default function QueueStatus({ queue, courseName, office_hours_id }: Queu
     </div>
   )
 }
+

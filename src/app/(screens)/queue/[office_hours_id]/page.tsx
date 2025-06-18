@@ -12,6 +12,7 @@ import { QueueForm } from "@/components/queue/queue-form";
 import InstructorView from "@/components/queue/instructor-view";
 import StudentView from "@/components/queue/student-view";
 import { UserCourse } from "@/types/types";
+import { Button } from "@/components/ui/button";
 
 
 
@@ -141,14 +142,15 @@ export default function QueuePage() {
       <InstructorView 
       queue={queue} 
       handleRemoveFromQueue={handleRemoveFromQueue}
+      office_hours_id={office_hours_id}
       />
     </div>
   );
 
-  // If still loading or auth level is not set
-  if (authLevel === null) {
-    return <main className="px-7 py-4">{renderSkeletons()}</main>;
-  }
+  // // If still loading or auth level is not set
+  // if (authLevel === null) {
+  //   return <main className="px-7 py-4">{renderSkeletons()}</main>;
+  // }
 
   // If there is an error, display it
   if (error) {
@@ -158,6 +160,9 @@ export default function QueuePage() {
   // Handle rendering based on auth level
   return (
     <main className="px-7 py-4">
+      <Button onClick={() => setAuthLevel(authLevel === "student" ? "instructor" : "student")}>
+        change view
+      </Button>
       {authLevel === "student" ? renderStudentView() : renderInstructorView()}
     </main>
   );

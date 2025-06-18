@@ -61,9 +61,6 @@ export function ActiveSession({ session, onEndSession, onTogglePause, setTime, h
     setElapsedTime(0)
   }, [session?.startTime])
 
-  // Progress bar calculation (assuming 15 min is a typical session)
-  const progressPercentage = Math.min((elapsedTime / (15 * 60)) * 100, 100)
-
   const handleEndSession = () => {
     setTime(elapsedTime)
     onEndSession()
