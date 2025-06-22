@@ -6,13 +6,14 @@ import { getUserCoursesFromSession } from "@/lib/helper/getUserInfo";
 import { getQueue, removeFromQueue } from "@/lib/helper/queueHelper";
 import { signOut, useSession } from "next-auth/react";
 import { useParams } from "next/navigation";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import type { Queue } from "@/types";
-import { QueueForm } from "@/components/queue/queue-form";
 import InstructorView from "@/components/queue/instructor-view";
 import StudentView from "@/components/queue/student-view";
 import { UserCourse } from "@/types/types";
 import { Button } from "@/components/ui/button";
+import { getClientSupabaseClient } from "@/lib/supabase/supabase-client";
+import { SupabaseClient } from "@supabase/supabase-js";
 
 
 
@@ -25,7 +26,6 @@ export default function QueuePage() {
   const { data: session, status } = useSession();
   const params = useParams();
   const office_hours_id: string = params?.office_hours_id as string;
-
   // Validate queue and fetch course and user details
   React.useEffect(() => {
     const validateQueue = async () => {
@@ -100,6 +100,100 @@ export default function QueuePage() {
     }
   }, [status, session, office_hours_id]);
 
+  const enrichQueueEntry = async (entry: any): Promise<Queue> => {
+    try {
+      // const supabase = await getClientSupabaseClient();
+      // const { data, error } = await supabase
+      //   .from("users")
+      //   .select("name, email")
+      //   .eq("id", entry.student)
+      //   .single();
+  
+      // if (error) {
+      //   console.error("Error enriching queue entry:", error);
+      //   return entry;
+      // }
+      const response = await fetch(`/api/users?id=${entry.student}`)
+      if(!response.ok){
+        console.error("Error while fetching user", response.statusText)
+        return entry
+      }
+      const data = await response.json()
+      return {
+        ...entry,
+        name: data.name,
+        email: data.email,
+      };
+    } catch (err) {
+      console.error("Failed to enrich queue entry:", err);
+      return entry;
+    }
+  };
+  
+
+  useEffect(() => {
+    let channel: ReturnType<SupabaseClient['channel']> | null = null;
+    const setupRealtime = async () => {
+      const supabase = await getClientSupabaseClient()
+      channel = supabase.channel("realtime-queue").on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "queue",
+        },
+        async (payload) => {
+          if (payload.eventType === "INSERT" && payload.new) {
+            const newQueueEntry = payload.new as Queue;
+            if (newQueueEntry.office_hours !== office_hours_id) return;
+          
+            setQueue((prev) => {
+              const alreadyExists = prev.some(q => q.id === newQueueEntry.id);
+              if (alreadyExists) return prev;
+          
+              if (!newQueueEntry.name || !newQueueEntry.email) {
+                enrichQueueEntry(newQueueEntry).then(enriched => {
+                  setQueue(current =>
+                    current.some(q => q.id === enriched.id) ? current : [...current, enriched]
+                  );
+                });
+                return prev;
+              } else {
+                return [...prev, newQueueEntry];
+              }
+            });
+          }
+          
+      
+          if (payload.eventType === "UPDATE" && payload.new) {
+            const updatedEntry = payload.new as Queue;
+            if (updatedEntry.office_hours !== office_hours_id) return;
+      
+            const enriched = await enrichQueueEntry(updatedEntry);
+            setQueue((prev) =>
+              prev.map((q) => (q.id === enriched.id ? enriched : q))
+            );
+          }
+      
+          if (payload.eventType === "DELETE" && payload.old) {
+            const deletedEntry = payload.old as Queue;
+            console.log(deletedEntry)
+            setQueue((prev) => prev.filter(q => q.id !== deletedEntry.id));
+          }
+        }
+      ).subscribe()
+      
+    }
+  
+    setupRealtime()
+  
+    return () => {
+      if (channel) {
+        channel.unsubscribe()
+      }
+    }
+  }, [office_hours_id])
+
   // Render skeletons while loading
   const renderSkeletons = () => (
     <div>
@@ -140,7 +234,7 @@ export default function QueuePage() {
   const renderInstructorView = () => (
     <div className="">
       <InstructorView 
-      queue={queue} 
+      queueState={queue} 
       handleRemoveFromQueue={handleRemoveFromQueue}
       office_hours_id={office_hours_id}
       />

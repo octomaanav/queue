@@ -7,7 +7,7 @@ import ModeToggle from "./mode-toggle"
 import { Button } from "../ui/button"
 import Link from "next/link"
 import { Avatar, AvatarFallback } from "../ui/avatar"
-import { useSession } from "next-auth/react"
+import { signIn, useSession } from "next-auth/react"
 
 export default function Navbar() {
     const [auth, setAuth] = React.useState(false)
@@ -26,7 +26,7 @@ export default function Navbar() {
     }, [])
 
     const handleClick = async () => {
-        window.location.href = "/api/login";
+        signIn("autolab")
     };
 
     return (

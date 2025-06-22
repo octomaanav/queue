@@ -13,7 +13,7 @@ import {
   getSortedRowModel,
   useReactTable,
 } from "@tanstack/react-table"
-import { ArrowUpDown, ChevronDown, CirclePause, MoreHorizontal, Pause, Trash, Trash2 } from "lucide-react"
+import { ArrowUpDown, ChevronDown, CirclePause, Loader2, MoreHorizontal, Pause, Play, Trash, Trash2 } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
@@ -41,10 +41,11 @@ export interface QueueStatusTableProps {
     queue : Queue[]
     handleRemoveFromQueue : (queueEntry : Queue[]) => void
     handleStartSession : (queueEntry : Queue) => void
+    loading : boolean
 }
 
 
-export const QueueStatusTable:React.FC<QueueStatusTableProps> = ({queue, handleRemoveFromQueue, handleStartSession}) => {
+export const QueueStatusTable:React.FC<QueueStatusTableProps> = ({queue, handleRemoveFromQueue, handleStartSession, loading}) => {
   const [sorting, setSorting] = React.useState<SortingState>([
     { id: "position", desc: false },
   ])
@@ -98,6 +99,18 @@ export const QueueStatusTable:React.FC<QueueStatusTableProps> = ({queue, handleR
         <div className="capitalize">{row.getValue("position")}</div>
       ),
       sortingFn: "basic",
+    },
+    {
+      id: "session",
+      header: "Session",
+      cell: ({ row }) => {
+        const queue = row.original
+        return (
+          <Button variant="default" onClick={() => handleStartSession(queue)} loading={loading}>
+            Start Session
+          </Button>
+        )
+      },
     },
     {
       id: "actions",

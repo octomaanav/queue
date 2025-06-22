@@ -10,22 +10,20 @@ import type { Student, SessionData } from "@/types/types"
 import { Card, CardContent } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { sessionPersistence } from "@/lib/helper/session-persistence";
-import { getClientSupabaseClient } from "@/lib/supabase/supabase-client";
-import { SupabaseClient } from "@supabase/supabase-js";
 
 interface InstructorViewProps {
-    queue: Queue[];
+    queueState: Queue[];
     handleRemoveFromQueue: (queueEntry: Queue[]) => void
     office_hours_id: string
 }
 
-export default function InstructorView({queue, handleRemoveFromQueue, office_hours_id}: InstructorViewProps) {
+export default function InstructorView({queueState, handleRemoveFromQueue, office_hours_id}: InstructorViewProps) {
   const [activeSession, setActiveSession] = useState<SessionData | null>(null)
   const [showResolutionForm, setShowResolutionForm] = useState(false)
   const [activeTab, setActiveTab] = useState<string>("queue")
   const [time, setTimeTaken] = useState<number>(0)
   const [modalOpen, setModalOpen] = useState(false);
-  const [queueState, setQueueState] = useState<Queue[]>(queue)
+  const [loading, setLoading] = useState(false)
 
   const handleModalOpen = () => {
     setModalOpen(true);
@@ -72,104 +70,13 @@ export default function InstructorView({queue, handleRemoveFromQueue, office_hou
   }, [activeSession, showResolutionForm])
 
 
-  const enrichQueueEntry = async (entry: any): Promise<Queue> => {
-    try {
-      const supabase = await getClientSupabaseClient();
-      const { data, error } = await supabase
-        .from("users") // or whatever your users table is called
-        .select("name, email")
-        .eq("id", entry.student) // or the foreign key field
-        .single();
-  
-      if (error) {
-        console.error("Error enriching queue entry:", error);
-        return entry;
-      }
-  
-      return {
-        ...entry,
-        name: data.name,
-        email: data.email,
-      };
-    } catch (err) {
-      console.error("Failed to enrich queue entry:", err);
-      return entry;
-    }
-  };
-  
 
-  useEffect(() => {
-    let channel: ReturnType<SupabaseClient['channel']> | null = null;
-    const setupRealtime = async () => {
-      const supabase = await getClientSupabaseClient()
-      channel = supabase.channel("realtime-queue").on(
-        "postgres_changes",
-        {
-          event: "*",
-          schema: "public",
-          table: "queue",
-        },
-        async (payload) => {
-      
-          if (payload.eventType === "INSERT" && payload.new) {
-            const newQueueEntry = payload.new as Queue;
-            if (newQueueEntry.office_hours !== office_hours_id) return;
-          
-            setQueueState((prev) => {
-              const alreadyExists = prev.some(q => q.id === newQueueEntry.id);
-              if (alreadyExists) return prev;
-          
-              if (!newQueueEntry.name || !newQueueEntry.email) {
-                enrichQueueEntry(newQueueEntry).then(enriched => {
-                  setQueueState(current =>
-                    current.some(q => q.id === enriched.id) ? current : [...current, enriched]
-                  );
-                });
-                return prev;
-              } else {
-                return [...prev, newQueueEntry];
-              }
-            });
-          }
-          
-      
-          if (payload.eventType === "UPDATE" && payload.new) {
-            const updatedEntry = payload.new as Queue;
-            if (updatedEntry.office_hours !== office_hours_id) return;
-      
-            const enriched = await enrichQueueEntry(updatedEntry);
-            setQueueState((prev) =>
-              prev.map((q) => (q.id === enriched.id ? enriched : q))
-            );
-          }
-      
-          if (payload.eventType === "DELETE" && payload.old) {
-            const deletedEntry = payload.old as Queue;
-            console.log(deletedEntry)
-            setQueueState((prev) => prev.filter(q => q.id !== deletedEntry.id));
-          }
-        }
-      ).subscribe()
-      
-    }
-  
-    setupRealtime()
-  
-    return () => {
-      if (channel) {
-        channel.unsubscribe()
-      }
-    }
-  }, [office_hours_id])
-
-  useEffect(() => {
-    setQueueState(queue)
-  }, [queue])
 
   // Start a session with a student
   const startSession = async (queue: Queue) => {
     // check if the student is already being helped by another instructor
     try {
+      setLoading(true)
       const isActive = queueState.some(q => q.id === queue.id && q.status === "active")
       if(isActive){
         alert("Student is already being helped by another instructor")
@@ -205,6 +112,8 @@ export default function InstructorView({queue, handleRemoveFromQueue, office_hou
       
     } catch (error) {
       console.error("Error while starting session:", error)
+    }finally{
+      setLoading(false)
     }
 
   }
@@ -278,7 +187,7 @@ export default function InstructorView({queue, handleRemoveFromQueue, office_hou
         <TabsContent value="queue" className="space-y-4">
           <Card>
             <CardContent className="pt-6">
-              <QueueStatusTable queue={queueState} handleRemoveFromQueue={handleRemoveFromQueue} handleStartSession={startSession} />
+              <QueueStatusTable queue={queueState} handleRemoveFromQueue={handleRemoveFromQueue} handleStartSession={startSession} loading={loading} />
             </CardContent>
           </Card>
         </TabsContent>

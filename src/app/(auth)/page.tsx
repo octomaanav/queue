@@ -10,7 +10,6 @@ export default function Home() {
 
   const handleClick = async () => {
     signIn("autolab")
-    // window.location.href = "/api/login";
   };
   return (
     <main className="flex flex-col items-center justify-center pt-[9rem]">
