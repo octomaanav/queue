@@ -112,40 +112,6 @@ export async function getOfficeHoursSchedule(courseId : string){
     }
 }
 
-// export const getCourseId = async (courseName : string, courseCode : string) => {
-//     const session = await getServerSession(authOptions);
-//     const access_token = session?.user?.accessToken
-//     if(!access_token || !session){
-//         throw new Error("Session is invalid or access token is missing");
-//     }
-//     const supabase = await getSupabaseClient(access_token);
-//     if (!supabase) {
-//         throw new Error("Supabase client is not initialized");
-//     }
-
-//     try{
-//         const {data: course, error: courseError} = await supabase
-//         .from("classes")
-//         .select('id')
-//         .eq('name', courseName)
-//         .eq('code', courseCode)
-//         .single();
-
-//         if(course == null){
-//             return null
-//         }
-
-//         if(courseError){
-//             throw new Error("Error while fetching course id");
-//         }
-
-//         return course.id;
-//     }catch(error){
-//         console.error("Error fetching course id:", error);
-//         throw error;
-//     }
-// }
-
 
 export const getCourseId = async (courseName: string, courseCode: string) => {
     const session = await getServerSession(authOptions)

@@ -25,7 +25,7 @@ import {
 } from "@/components/ui/sidebar"
 import React, { useEffect } from "react"
 import { Skeleton } from "../ui/skeleton"
-import { getUserCoursesFromAutolab, getUserCoursesFromSession } from "@/lib/helper/getUserInfo"
+import { getUserCoursesFromAutolab, getUserCoursesFromSession } from "@/lib/helper/autolab-helper"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "../ui/dropdown-menu"
 import { useTheme } from "next-themes"
 import { signOut, useSession } from "next-auth/react"

@@ -1,6 +1,6 @@
 'use server'
 
-import { JoinQueue } from "@/lib/helper/queueHelper";
+import { JoinQueue } from "@/lib/helper/queue-helper";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(request: NextRequest) {

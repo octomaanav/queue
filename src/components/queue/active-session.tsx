@@ -88,15 +88,11 @@ export function ActiveSession({ session, onEndSession, onTogglePause, setTime, h
                 <p className="text-lg font-semibold">{session.student.name}</p>
               </div>
             </div>
-            {/* <div className="space-y-4">
-              <div className="flex items-center gap-2">
-                <BookOpen className="h-5 w-5 text-muted-foreground" />
-                <h3 className="text-lg font-medium">Email</h3>
+            <div className="space-y-4"> 
+              <div className="flex items-center gap-2"> 
+                <h3 className="text-lg font-medium">Other Information</h3>
               </div>
-              <div className="pl-7">
-                <p className="text-lg font-semibold">{session.student.email}</p>
-              </div>
-            </div> */}
+            </div>
           </div>
         </CardContent>
       </Card>

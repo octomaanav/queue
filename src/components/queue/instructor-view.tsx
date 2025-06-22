@@ -36,6 +36,7 @@ export default function InstructorView({queueState, handleRemoveFromQueue, offic
   const handleFormSubmit = (formData: FormData) => {
     console.log(formData)
   }
+
   useEffect(() => {
     const storedSession = sessionPersistence.loadSession();
     if (storedSession) {
@@ -68,8 +69,6 @@ export default function InstructorView({queueState, handleRemoveFromQueue, offic
       window.removeEventListener("beforeunload", handleBeforeUnload)
     }
   }, [activeSession, showResolutionForm])
-
-
 
 
   // Start a session with a student

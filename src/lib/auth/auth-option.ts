@@ -1,6 +1,6 @@
 import { NextAuthOptions } from "next-auth";
 import { OAuthConfig } from "next-auth/providers/oauth";
-import { getUserCoursesFromAutolab, getUserInfo } from "../helper/getUserInfo";
+import { getUserCoursesFromAutolab, getUserInfo } from "../helper/autolab-helper";
 import { pushUserToDataBase } from "../helper/getFromDatabase";
 
 interface DbUser {

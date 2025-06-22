@@ -2,8 +2,8 @@
 
 import { Skeleton } from "@/components/ui/skeleton";
 import { getCourseName, getOfficeHoursEntry } from "@/lib/helper/getFromDatabase";
-import { getUserCoursesFromSession } from "@/lib/helper/getUserInfo";
-import { getQueue, removeFromQueue } from "@/lib/helper/queueHelper";
+import { getUserCoursesFromSession } from "@/lib/helper/autolab-helper";
+import { getQueue, removeFromQueue } from "@/lib/helper/queue-helper";
 import { signOut, useSession } from "next-auth/react";
 import { useParams } from "next/navigation";
 import React, { useEffect, useState } from "react";
@@ -102,17 +102,6 @@ export default function QueuePage() {
 
   const enrichQueueEntry = async (entry: any): Promise<Queue> => {
     try {
-      // const supabase = await getClientSupabaseClient();
-      // const { data, error } = await supabase
-      //   .from("users")
-      //   .select("name, email")
-      //   .eq("id", entry.student)
-      //   .single();
-  
-      // if (error) {
-      //   console.error("Error enriching queue entry:", error);
-      //   return entry;
-      // }
       const response = await fetch(`/api/users?id=${entry.student}`)
       if(!response.ok){
         console.error("Error while fetching user", response.statusText)

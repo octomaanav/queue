@@ -3,7 +3,7 @@
 import { CourseCard } from '@/components/custom/course-card';
 import React, {useEffect} from 'react';
 import { Skeleton } from '@/components/ui/skeleton';
-import {getUserCoursesFromSession } from '@/lib/helper/getUserInfo';
+import {getUserCoursesFromSession } from '@/lib/helper/autolab-helper';
 import { signOut, useSession } from 'next-auth/react';
 interface UserCourse{
   auth_level:string,

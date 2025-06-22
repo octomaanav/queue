@@ -1,5 +1,4 @@
-import { getQueue, getQueueEntry } from "@/lib/helper/queueHelper";
-import { i } from "framer-motion/client";
+import { getQueue, getQueueEntry } from "@/lib/helper/queue-helper";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(request : NextRequest){

@@ -1,4 +1,4 @@
-import { leaveQueue } from "@/lib/helper/queueHelper";
+import { leaveQueue } from "@/lib/helper/queue-helper";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(request : NextRequest){

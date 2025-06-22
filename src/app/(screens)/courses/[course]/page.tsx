@@ -5,7 +5,7 @@ import { OfficeHoursCard } from '@/components/custom/office-hours';
 import { getCourseId, getOfficeHoursSchedule } from '@/lib/helper/getFromDatabase';
 import { Skeleton } from '@/components/ui/skeleton';
 import { signOut, useSession } from 'next-auth/react';
-import { getUserCoursesFromSession } from '@/lib/helper/getUserInfo';
+import { getUserCoursesFromSession } from '@/lib/helper/autolab-helper';
 import { QueueForm } from '@/components/queue/queue-form';
 
 interface UserCourse {
