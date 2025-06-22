@@ -6,7 +6,7 @@ const STUDENT_SESSION_STORAGE_KEY = "active_student_session"
 
 interface StudentSessionData {
   hasJoinedQueue : boolean,
-  sessionStatus : "waiting" | "active" | "completed",
+  sessionStatus : "waiting" | "active" | "ready" | "completed",
   office_hours_id : string,
   studentId : string
 }

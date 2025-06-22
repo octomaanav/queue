@@ -4,6 +4,7 @@ export interface Queue{
     studentID : string,
     name: string,
     email:string,
+    status: string,
     position : number,
 }
 

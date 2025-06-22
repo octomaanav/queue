@@ -35,15 +35,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
-
-export type Queue = {
-    id : string,
-    office_hours : string,
-    studentID : string,
-    name: string,
-    email:string,
-    position : number,
-}
+import { Queue } from "@/types"
 
 export interface QueueStatusTableProps {
     queue : Queue[]

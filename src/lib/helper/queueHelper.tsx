@@ -3,7 +3,7 @@
 import { getServerSession } from "next-auth";
 import { NextResponse } from "next/server";
 import { authOptions } from "../auth/auth-option";
-import { getSupabaseClient } from "../../../supabase";
+import { getSupabaseClient } from "../supabase/supabase";
 import { v4 as uuid } from "uuid";
 import { Queue } from "@/types";
 
@@ -106,6 +106,7 @@ export async function JoinQueue(office_hours_id: string) {
             office_hours: office_hours_id,
             student: userID,
             position,
+            status: "waiting"
           },
         ]);
   
@@ -113,7 +114,7 @@ export async function JoinQueue(office_hours_id: string) {
         throw new Error("Error while joining the queue");
       }
   
-      return { id, student: userID, position, office_hours:office_hours_id }; // Return raw data
+      return { id, student: userID, position, office_hours:office_hours_id, status: "waiting" }; // Return raw data
     } catch (error : any) {
       throw new Error(`Error while joining queue: ${error.message}`);
     }

@@ -3,6 +3,7 @@
 import {
   Card,
   CardContent,
+  CardFooter,
   CardHeader,
   CardTitle,
 } from "../ui/card"
@@ -27,7 +28,7 @@ export default function QueueStatus({ queue, courseName, office_hours_id }: Queu
   const [loading, setLoading] = useState(false)
   const [isJoining, setIsJoining] = useState(false)
   const [hasJoinedQueue, setHasJoinedQueue] = useState(false)
-  const [sessionStatus, setSessionStatus] = useState<"waiting" | "active" | "completed">("waiting")
+  const [sessionStatus, setSessionStatus] = useState<"waiting" | "active" | "ready" | "completed">("waiting")
   const [queuePosition, setQueuePosition] = useState(0)
   const [taName, setTaName] = useState("Amit")
   const [sessionTimer, setSessionTimer] = useState("00:00")
@@ -54,33 +55,45 @@ export default function QueueStatus({ queue, courseName, office_hours_id }: Queu
           body: JSON.stringify({ office_hours_id }),
         });
   
-        const data: Queue[] = await response.json();
-        setQueueData(data);
+        const data = await response.json();
+        if (!data) {
+          setHasJoinedQueue(false)
+          setSessionStatus("waiting")
+          studentSessionPersistence.clearSession()
+          return
+        }
   
         const storedSession = studentSessionPersistence.loadSession();
         if (!storedSession || !storedSession.studentId) return;
   
-        const studentEntry = data.find(entry => entry.studentID === storedSession.studentId);
-        if (!studentEntry){
+        const studentEntry = data.find((entry: any) => entry.student === storedSession.studentId);
+        if (!studentEntry) {
+          // Student is no longer in the queue — session is over or removed
           setHasJoinedQueue(false)
           setSessionStatus("waiting")
+          studentSessionPersistence.clearSession()
           return
         }
-  
+        
         // Set position
-        setQueuePosition(studentEntry.position);
   
-        if (studentEntry.position === 1 && sessionStatus !== "active") {
+        if (studentEntry.position === 1 && studentEntry.status === "active") {
           setSessionStatus("active");
           studentSessionPersistence.saveSession({
             ...storedSession,
             sessionStatus: "active",
           });
-        } else if (studentEntry.position > 1 && sessionStatus !== "waiting") {
+        }else if (studentEntry.position > 1 && studentEntry.status !== "waiting") {
           setSessionStatus("waiting");
           studentSessionPersistence.saveSession({
             ...storedSession,
             sessionStatus: "waiting",
+          });
+        }else if (studentEntry.position === 1 && studentEntry.status === "waiting") {
+          setSessionStatus("ready");
+          studentSessionPersistence.saveSession({
+            ...storedSession,
+            sessionStatus: "ready",
           });
         }
   
@@ -247,10 +260,6 @@ export default function QueueStatus({ queue, courseName, office_hours_id }: Queu
                 <div className="text-center text-sm text-muted-foreground">
                   {queueData.length} student{queueData.length !== 1 && "s"} in queue
                 </div>
-
-                <Button loading={isJoining} variant="destructive" className="w-full mt-4" onClick={handleLeaveQueue}>
-                  Leave Queue
-                </Button>
               </>
             )}
 
@@ -262,29 +271,27 @@ export default function QueueStatus({ queue, courseName, office_hours_id }: Queu
                   <p className="text-muted-foreground">{taName} is helping you now</p>
                 </div>
 
-                <Separator />
-                <Button loading={isJoining} variant="destructive" className="w-full mt-4" onClick={handleLeaveQueue}>
-                  Leave Queue
-                </Button>
-
-                {/* <div className="text-center">
+                <div className="text-center">
                   <p className="text-sm text-muted-foreground mb-2">Session Duration</p>
                   <p className="text-3xl font-mono font-bold">{sessionTimer}</p>
-                </div> */}
-
-                {/* <Button onClick={handleLeaveQueue} className="w-full" variant="outline">
-                  Quit Session
-                </Button> */}
+                </div>
+                <Separator />
               </>
             )}
 
-            {/* {sessionStatus === "completed" && (
+            {sessionStatus === "ready" && (
+              <>
               <div className="text-center py-6">
-                <CheckCircle className="mx-auto h-16 w-16 text-green-500" />
-                <h3 className="text-xl font-semibold mt-4 text-green-700">Session Complete!</h3>
-                <p className="text-muted-foreground">Thanks for attending office hours!</p>
+                <h3 className="text-xl font-semibold mt-4 text-green-700">You're up next!</h3>
+                <p className="text-muted-foreground">Please wait for a TA to assist you</p>
               </div>
-            )} */}
+              <Separator />
+              </>
+            )}
+              
+                <Button loading={isJoining} variant="destructive" className="w-full mt-4" onClick={handleLeaveQueue}>
+                  Leave Queue
+                </Button>
           </CardContent>
         </Card>
       )}

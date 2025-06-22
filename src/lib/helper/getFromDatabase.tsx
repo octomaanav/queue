@@ -2,9 +2,10 @@
 
 import {v4 as uuid} from 'uuid';
 import { NextResponse } from "next/server";
-import { getSupabaseClient } from '../../../supabase';
+import { getSupabaseClient } from '../supabase/supabase';
 import { getServerSession } from 'next-auth';
-import { authOptions } from '../auth/auth-option';
+import { authOptions, refreshAccessToken } from '../auth/auth-option';
+import { getSession } from 'next-auth/react';
 
 export async function pushUserToDataBase({name, email, access_token}: {name: string, email: string, access_token:string}){
     const userId = uuid();
@@ -111,39 +112,89 @@ export async function getOfficeHoursSchedule(courseId : string){
     }
 }
 
-export const getCourseId = async (courseName : string, courseCode : string) => {
-    const session = await getServerSession(authOptions);
-    const access_token = session?.user?.accessToken
-    if(!access_token || !session){
-        throw new Error("Session is invalid or access token is missing");
-    }
-    const supabase = await getSupabaseClient(access_token);
-    if (!supabase) {
-        throw new Error("Supabase client is not initialized");
-    }
+// export const getCourseId = async (courseName : string, courseCode : string) => {
+//     const session = await getServerSession(authOptions);
+//     const access_token = session?.user?.accessToken
+//     if(!access_token || !session){
+//         throw new Error("Session is invalid or access token is missing");
+//     }
+//     const supabase = await getSupabaseClient(access_token);
+//     if (!supabase) {
+//         throw new Error("Supabase client is not initialized");
+//     }
 
-    try{
-        const {data: course, error: courseError} = await supabase
+//     try{
+//         const {data: course, error: courseError} = await supabase
+//         .from("classes")
+//         .select('id')
+//         .eq('name', courseName)
+//         .eq('code', courseCode)
+//         .single();
+
+//         if(course == null){
+//             return null
+//         }
+
+//         if(courseError){
+//             throw new Error("Error while fetching course id");
+//         }
+
+//         return course.id;
+//     }catch(error){
+//         console.error("Error fetching course id:", error);
+//         throw error;
+//     }
+// }
+
+
+export const getCourseId = async (courseName: string, courseCode: string) => {
+    const session = await getServerSession(authOptions)
+
+    console.log("AUTOLAB_TOKEN_ENDPOINT: "+process.env.AUTOLAB_TOKEN_ENDPOINT, session)
+  
+    if (!session || !session.user) {
+      throw new Error("Invalid session")
+    }
+  
+    const now = Math.floor(Date.now() / 1000)
+    const token = {
+      accessToken: session.user.accessToken,
+      refreshToken: session.user.refreshToken,
+      expiresAt: session.user.expiresAt,
+    }
+  
+    let freshAccessToken = token.accessToken
+  
+    // 🔁 Refresh if expired
+    if (token.expiresAt && now > token.expiresAt - 60) {
+      console.log("🔄 Access token expired. Refreshing...")
+  
+      const refreshed = await refreshAccessToken(token)
+      if (refreshed?.accessToken) {
+        freshAccessToken = refreshed.accessToken
+      } else {
+        throw new Error("Failed to refresh access token")
+      }
+    }
+  
+    const supabase = await getSupabaseClient(freshAccessToken!)
+  
+    try {
+      const { data: course, error: courseError } = await supabase
         .from("classes")
-        .select('id')
-        .eq('name', courseName)
-        .eq('code', courseCode)
-        .single();
-
-        if(course == null){
-            return null
-        }
-
-        if(courseError){
-            throw new Error("Error while fetching course id");
-        }
-
-        return course.id;
-    }catch(error){
-        console.error("Error fetching course id:", error);
-        throw error;
+        .select("id")
+        .eq("name", courseName)
+        .eq("code", courseCode)
+        .single()
+  
+      if (courseError) throw new Error("Error while fetching course id")
+  
+      return course?.id || null
+    } catch (error) {
+      console.error("Error fetching course id:", error)
+      throw error
     }
-}
+  }
 
 export const getOfficeHoursEntry = async (officeHoursId : string) => {
     const session = await getServerSession(authOptions);

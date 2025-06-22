@@ -1,6 +1,6 @@
 
 import { getServerSession } from "next-auth";
-import { getSupabaseClient } from "../../../supabase";
+import { getSupabaseClient } from "../supabase/supabase";
 import { authOptions } from "../auth/auth-option";
 import { NextResponse } from "next/server";
 
@@ -26,7 +26,6 @@ export async function updateSession(id: string, status: string) {
         if (error) {
             throw new Error("Failed to update session");
         }
-        console.log(data)
         return data;
     } catch (error) {
         return NextResponse.json({ error: "Failed to update session", details: error }, { status: 500 });
