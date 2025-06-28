@@ -41,3 +41,8 @@ yarn-error.log*
 next-env.d.ts
 
 certificates
+
+
+# ssl certificates
+localhost-key.pem
+localhost.pem

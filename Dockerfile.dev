@@ -19,4 +19,4 @@ COPY . .
 EXPOSE 3000
 
 # Start development server
-CMD ["npx", "next", "dev", "--experimental-https"]
+CMD ["node", "server.js"]
