@@ -2,11 +2,10 @@
 import { useParams, useSearchParams, useRouter } from 'next/navigation';
 import React, { useEffect } from 'react';
 import { OfficeHoursCard } from '@/components/custom/office-hours';
-import { getCourseId, getOfficeHoursSchedule } from '@/lib/helper/getFromDatabase';
+import { getCourseId, getOfficeHoursSchedule } from '@/lib/helper/database-helper';
 import { Skeleton } from '@/components/ui/skeleton';
 import { signOut, useSession } from 'next-auth/react';
 import { getUserCoursesFromSession } from '@/lib/helper/autolab-helper';
-import { QueueForm } from '@/components/queue/queue-form';
 
 interface UserCourse {
   auth_level: string;

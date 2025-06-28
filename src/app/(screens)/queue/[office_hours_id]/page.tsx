@@ -1,7 +1,7 @@
 'use client'
 
 import { Skeleton } from "@/components/ui/skeleton";
-import { getCourseName, getOfficeHoursEntry } from "@/lib/helper/getFromDatabase";
+import { getCourseName, getOfficeHoursEntry } from "@/lib/helper/database-helper";
 import { getUserCoursesFromSession } from "@/lib/helper/autolab-helper";
 import { getQueue, removeFromQueue } from "@/lib/helper/queue-helper";
 import { signOut, useSession } from "next-auth/react";
@@ -10,7 +10,7 @@ import React, { useEffect, useState } from "react";
 import type { Queue } from "@/types";
 import InstructorView from "@/components/queue/instructor-view";
 import StudentView from "@/components/queue/student-view";
-import { UserCourse } from "@/types/types";
+import { UserCourse } from "@/types/session-types";
 import { Button } from "@/components/ui/button";
 import { getClientSupabaseClient } from "@/lib/supabase/supabase-client";
 import { SupabaseClient } from "@supabase/supabase-js";
@@ -166,7 +166,6 @@ export default function QueuePage() {
       
           if (payload.eventType === "DELETE" && payload.old) {
             const deletedEntry = payload.old as Queue;
-            console.log(deletedEntry)
             setQueue((prev) => prev.filter(q => q.id !== deletedEntry.id));
           }
         }
@@ -216,6 +215,7 @@ export default function QueuePage() {
         queue={queue} 
         course={course!}
         office_hours_id={office_hours_id}
+        student_id={session?.user?.id!}
       />
     </div>
   );

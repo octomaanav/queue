@@ -1,12 +1,12 @@
 "use client"
 import { CardInputModal } from "../custom/card-input-modal";
-import type { Queue } from "@/types/queue";
+import type { Queue } from "@/types/queue-types";
 import { Button } from "../ui/button";
 import { useState, useEffect } from "react"
 import { QueueStatusTable } from "./queue-status-table"
 import { ActiveSession } from "@/components/queue/active-session"
 import { ResolutionForm } from "@/components/queue/resolution-form"
-import type { Student, SessionData } from "@/types/types"
+import type { Student, SessionData } from "@/types/session-types"
 import { Card, CardContent } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { sessionPersistence } from "@/lib/helper/session-persistence";

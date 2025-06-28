@@ -3,7 +3,7 @@
 import type React from "react"
 
 import { useState } from "react"
-import type { Student } from "@/types/types"
+import type { Student } from "@/types/session-types"
 import { Button } from "@/components/ui/button"
 import {
   Dialog,

@@ -115,8 +115,6 @@ export async function getOfficeHoursSchedule(courseId : string){
 
 export const getCourseId = async (courseName: string, courseCode: string) => {
     const session = await getServerSession(authOptions)
-
-    console.log("AUTOLAB_TOKEN_ENDPOINT: "+process.env.AUTOLAB_TOKEN_ENDPOINT, session)
   
     if (!session || !session.user) {
       throw new Error("Invalid session")
@@ -131,7 +129,6 @@ export const getCourseId = async (courseName: string, courseCode: string) => {
   
     let freshAccessToken = token.accessToken
   
-    // 🔁 Refresh if expired
     if (token.expiresAt && now > token.expiresAt - 60) {
       console.log("🔄 Access token expired. Refreshing...")
   
@@ -236,5 +233,55 @@ export const getCourseName = async (courseId : string) => {
 
     }catch(error){
         throw new Error("Something went wrong while getting the course name");
+    }
+}
+
+export const validateSession = async (office_hours_id: string, student_id: string) => {
+    try {
+        const session = await getServerSession(authOptions)
+  
+        if (!session || !session.user) {
+            throw new Error("Invalid session")
+        }
+    
+        const now = Math.floor(Date.now() / 1000)
+        const token = {
+        accessToken: session.user.accessToken,
+        refreshToken: session.user.refreshToken,
+        expiresAt: session.user.expiresAt,
+        }
+    
+        let freshAccessToken = token.accessToken
+    
+        if (token.expiresAt && now > token.expiresAt - 60) {
+        console.log("🔄 Access token expired. Refreshing...")
+    
+        const refreshed = await refreshAccessToken(token)
+        if (refreshed?.accessToken) {
+            freshAccessToken = refreshed.accessToken
+        } else {
+            throw new Error("Failed to refresh access token")
+        }
+        }
+    
+        const supabase = await getSupabaseClient(freshAccessToken!)
+  
+        const { data, error } = await supabase
+        .from("sessions")
+        .select("*")
+        .eq("oh_id", office_hours_id)
+        .eq("user_id", student_id)
+        .single();
+
+        if (error) throw new Error("Error while fetching session");
+
+        const { expires_at, is_valid } = data;
+
+        if(new Date(expires_at).getTime() < Date.now()){
+            return {expired: true, is_valid}
+        }
+        return {expired: false, is_valid}
+    } catch (error) {
+        throw new Error("Error while validating session")
     }
 }

@@ -1,7 +1,7 @@
 import { NextAuthOptions } from "next-auth";
 import { OAuthConfig } from "next-auth/providers/oauth";
 import { getUserCoursesFromAutolab, getUserInfo } from "../helper/autolab-helper";
-import { pushUserToDataBase } from "../helper/getFromDatabase";
+import { pushUserToDataBase } from "../helper/database-helper";
 
 interface DbUser {
   id: string;
@@ -32,7 +32,7 @@ const autolabProvider: OAuthConfig<AutolabProfile> = {
             response_type: "code",
             scope: "user_info user_courses",
             client_id: process.env.AUTOLAB_CLIENT_ID,
-            redirect_uri:"https://localhost:3000/api/auth/callback/autolab",
+            redirect_uri:process.env.AUTOLAB_REDIRECT_URI,
         }
     },
     token:`${process.env.AUTOLAB_TOKEN_ENDPOINT}`,
@@ -100,7 +100,6 @@ export const authOptions: NextAuthOptions = {
     async jwt({ token, account }) {
       const now = Math.floor(Date.now() / 1000) // in seconds
 
-      // First time login: store tokens + enrich token
       if (account) {
         const userData = await getUserInfo({ access_token: account.access_token! })
         const dbUser = await pushUserToDataBase({

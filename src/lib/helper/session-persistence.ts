@@ -1,4 +1,4 @@
-import type { SessionData } from "../../types/types"
+import type { SessionData } from "../../types/session-types"
 
 const SESSION_STORAGE_KEY = "active_office_hours_session"
 

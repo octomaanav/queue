@@ -8,179 +8,52 @@ import {
   CardTitle,
 } from "../ui/card"
 import { Button } from "../ui/button"
-import React, { useEffect, useState } from "react"
+import React from "react"
 import { Skeleton } from "../ui/skeleton"
 import { CheckCircle, Clock, Users } from "lucide-react"
 import { AnimatedModal } from "../custom/animated-modal"
 import { Separator } from "../ui/separator"
 import { Badge } from "../ui/badge"
 import { Queue } from "@/types"
-import { studentSessionPersistence } from "@/lib/helper/session-persistence"
 
 
 interface QueueStatusProps {
   queue: Queue[]
   courseName: string
   office_hours_id: string
+  loading: boolean
+  isJoining: boolean
+  hasJoinedQueue: boolean
+  sessionStatus: "waiting" | "active" | "ready" | "completed"
+  queuePosition: number
+  taName: string
+  sessionTimer: string
+  modalOpen: boolean
+  estimatedWaitTime: number
+  onJoinQueue: () => void
+  onLeaveQueue: () => void
+  onCloseModal: () => void
+  onOpenModal: () => void
 }
 
-export default function QueueStatus({ queue, courseName, office_hours_id }: QueueStatusProps) {
-  const [loading, setLoading] = useState(false)
-  const [isJoining, setIsJoining] = useState(false)
-  const [hasJoinedQueue, setHasJoinedQueue] = useState(false)
-  const [sessionStatus, setSessionStatus] = useState<"waiting" | "active" | "ready" | "completed">("waiting")
-  const [queuePosition, setQueuePosition] = useState(0)
-  const [taName, setTaName] = useState("Amit")
-  const [sessionTimer, setSessionTimer] = useState("00:00")
-  const [modalOpen, setModalOpen] = useState(false)
-  const [queueData, setQueueData] = useState<Queue[]>(queue)
-
-  const estimatedWaitTime = queueData.length * 5
-
-  useEffect(() => {
-    const storedSession = studentSessionPersistence.loadSession();
-    if(storedSession){
-      setHasJoinedQueue(storedSession.hasJoinedQueue)
-      setSessionStatus(storedSession.sessionStatus)
-    }
-  }, [])
-
-
-  useEffect(() => {
-    const fetchQueue = async () => {
-      try {
-        const response = await fetch("/api/queue/get", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ office_hours_id }),
-        });
-  
-        const data = await response.json();
-        if (!data) {
-          setHasJoinedQueue(false)
-          setSessionStatus("waiting")
-          studentSessionPersistence.clearSession()
-          return
-        }
-  
-        const storedSession = studentSessionPersistence.loadSession();
-        if (!storedSession || !storedSession.studentId) return;
-  
-        const studentEntry = data.find((entry: any) => entry.student === storedSession.studentId);
-        if (!studentEntry) {
-          // Student is no longer in the queue — session is over or removed
-          setHasJoinedQueue(false)
-          setSessionStatus("waiting")
-          studentSessionPersistence.clearSession()
-          return
-        }
-        
-        // Set position
-  
-        if (studentEntry.position === 1 && studentEntry.status === "active") {
-          setSessionStatus("active");
-          studentSessionPersistence.saveSession({
-            ...storedSession,
-            sessionStatus: "active",
-          });
-        }else if (studentEntry.position > 1 && studentEntry.status !== "waiting") {
-          setSessionStatus("waiting");
-          studentSessionPersistence.saveSession({
-            ...storedSession,
-            sessionStatus: "waiting",
-          });
-        }else if (studentEntry.position === 1 && studentEntry.status === "waiting") {
-          setSessionStatus("ready");
-          studentSessionPersistence.saveSession({
-            ...storedSession,
-            sessionStatus: "ready",
-          });
-        }
-  
-        setHasJoinedQueue(true);
-      } catch (err) {
-        console.error("Failed to fetch queue:", err);
-      } finally {
-        setLoading(false);
-      }
-    };
-  
-    fetchQueue();
-    const interval = setInterval(fetchQueue, 5000);
-    return () => clearInterval(interval);
-  }, [office_hours_id, sessionStatus]);
-  
-  
-  const handleJoinQueue = async () => {
-    try {
-      setIsJoining(true);
-      const response = await fetch("/api/queue/join", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ office_hours_id }),
-      });
-  
-      if (!response.ok) {
-        throw new Error("Failed to join the queue");
-      }
-  
-      const data = await response.json();
-      const { position, student } = data;
-  
-      if (position != null && student != null) {
-        setQueuePosition(position);
-        setHasJoinedQueue(true);
-        setSessionStatus("waiting");
-  
-        studentSessionPersistence.saveSession({
-          hasJoinedQueue: true,
-          sessionStatus: "waiting",
-          office_hours_id,
-          studentId: student,
-        });
-      } else {
-        throw new Error("Position or student ID missing");
-      }
-    } catch (error) {
-      console.error("Join error:", error);
-    } finally {
-      setIsJoining(false);
-    }
-  };
-  
-  
-  const handleLeaveQueue = async () => {
-    try {
-        setIsJoining(true)
-        const response = await fetch("/api/queue/leave",{
-            method:"POST",
-            headers:{
-                "Content-Type" : "application/json"
-            },
-            body: JSON.stringify({office_hours_id})
-        })
-        const data = await response.json()
-        const {leftQueue} = data
-        if(!leftQueue){
-            throw new Error("Error while removing user from the queue")
-        }
-
-      setHasJoinedQueue(false)
-      setSessionStatus("waiting")
-    } catch (error) {
-      console.error("Leave error:", error)
-    } finally {
-      setModalOpen(false)
-      setIsJoining(false)
-      studentSessionPersistence.clearSession()
-    }
-  }
-
-//   const handleEndSession = () => {
-//     setSessionStatus("completed")
-//   }
+export default function QueueStatus({ 
+  queue, 
+  courseName, 
+  office_hours_id,
+  loading,
+  isJoining,
+  hasJoinedQueue,
+  sessionStatus,
+  queuePosition,
+  taName,
+  sessionTimer,
+  modalOpen,
+  estimatedWaitTime,
+  onJoinQueue,
+  onLeaveQueue,
+  onCloseModal,
+  onOpenModal
+}: QueueStatusProps) {
 
   const renderSkeleton = () => (
     <div className="flex flex-col mb-2 w-full">
@@ -206,7 +79,7 @@ export default function QueueStatus({ queue, courseName, office_hours_id }: Queu
 
             <div className="grid grid-cols-2 gap-4 mt-4">
               <div>
-                <p className="text-2xl font-bold text-primary">{queueData.length}</p>
+                <p className="text-2xl font-bold text-primary">{queue.length}</p>
                 <p className="text-sm text-muted-foreground">In Queue</p>
               </div>
               <div>
@@ -215,7 +88,7 @@ export default function QueueStatus({ queue, courseName, office_hours_id }: Queu
               </div>
             </div>
 
-            <Button loading={isJoining} className="w-full mt-4" onClick={handleJoinQueue}>
+            <Button loading={isJoining} className="w-full mt-4" onClick={onJoinQueue}>
               Join the Queue
             </Button>
           </CardContent>
@@ -258,7 +131,7 @@ export default function QueueStatus({ queue, courseName, office_hours_id }: Queu
                 </div>
 
                 <div className="text-center text-sm text-muted-foreground">
-                  {queueData.length} student{queueData.length !== 1 && "s"} in queue
+                  {queue.length} student{queue.length !== 1 && "s"} in queue
                 </div>
               </>
             )}
@@ -289,7 +162,7 @@ export default function QueueStatus({ queue, courseName, office_hours_id }: Queu
               </>
             )}
               
-                <Button loading={isJoining} variant="destructive" className="w-full mt-4" onClick={handleLeaveQueue}>
+                <Button loading={isJoining} variant="destructive" className="w-full mt-4" onClick={onLeaveQueue}>
                   Leave Queue
                 </Button>
           </CardContent>
@@ -301,8 +174,8 @@ export default function QueueStatus({ queue, courseName, office_hours_id }: Queu
         description="Are you sure you want to leave the queue?"
         subDescription="This action cannot be undone"
         isOpen={modalOpen}
-        onClose={() => setModalOpen(false)}
-        onLeave={handleLeaveQueue}
+        onClose={onCloseModal}
+        onLeave={onLeaveQueue}
       />
     </div>
   )

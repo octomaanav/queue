@@ -1,6 +1,6 @@
 "use client"
 import { useState, useEffect } from "react"
-import type { SessionData } from "@/types/types"
+import type { SessionData } from "@/types/session-types"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Clock, Pause, Play, StopCircle, User, CircleAlert } from "lucide-react"

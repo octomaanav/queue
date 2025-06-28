@@ -1,5 +1,3 @@
-import { Queue } from "./queue"
-
 export interface Student {
     id: string
     name: string

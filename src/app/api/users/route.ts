@@ -1,4 +1,4 @@
-import { getUserFromDatabase } from "@/lib/helper/getFromDatabase"
+import { getUserFromDatabase } from "@/lib/helper/database-helper"
 import { NextRequest } from "next/server"
 import { NextResponse } from "next/server"
 
