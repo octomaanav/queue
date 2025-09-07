@@ -5,11 +5,7 @@ import React, {useEffect} from 'react';
 import { Skeleton } from '@/components/ui/skeleton';
 import {getUserCoursesFromSession } from '@/lib/helper/autolab-helper';
 import { signOut, useSession } from 'next-auth/react';
-interface UserCourse{
-  auth_level:string,
-  display_name:string,
-  name:string,
-}
+import { UserCourse } from '@/types/session-types';
 
 export default function Dashboard() {
   const [userCourses, setUserCourses] = React.useState<UserCourse[]>([]);
@@ -22,7 +18,7 @@ export default function Dashboard() {
       try {
         setLoading(true);
         const user_courses = await getUserCoursesFromSession();
-        if(user_courses){
+        if(Array.isArray(user_courses)){
           setUserCourses(user_courses);
           return;
         }else{
@@ -45,7 +41,6 @@ export default function Dashboard() {
     }
   }, [session, status]);
 
-  
   const renderSkeletons = () => {
     return Array.from({ length: 6 }).map((i, index) => (
       <div key={index} className="flex flex-col space-y-2 w-full lg:w-[350px]">

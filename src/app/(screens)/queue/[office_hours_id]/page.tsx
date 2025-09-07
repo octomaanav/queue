@@ -41,11 +41,11 @@ export default function QueuePage() {
 
         const current_course = await getCourseName(officeHourEntry.class);
         const user_courses = await getUserCoursesFromSession();
-        const user_course = user_courses.find(
+        const user_course = Array.isArray(user_courses) ? user_courses.find(
           (course: any) =>
             course.display_name === current_course.name &&
             course.name === current_course.code
-        );
+        ) : null;
 
         if (!user_course) {
           setError("User is not authorized to view this queue.");
