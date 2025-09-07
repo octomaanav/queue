@@ -100,18 +100,18 @@ export const QueueStatusTable:React.FC<QueueStatusTableProps> = ({queue, handleR
       ),
       sortingFn: "basic",
     },
-    {
-      id: "session",
-      header: "Session",
-      cell: ({ row }) => {
-        const queue = row.original
-        return (
-          <Button variant="default" onClick={() => handleStartSession(queue)} loading={loading}>
-            Start Session
-          </Button>
-        )
-      },
-    },
+    // {
+    //   id: "session",
+    //   header: "Session",
+    //   cell: ({ row }) => {
+    //     const queue = row.original
+    //     return (
+    //       <Button variant="default" onClick={() => handleStartSession(queue)} loading={loading}>
+    //         Start Session
+    //       </Button>
+    //     )
+    //   },
+    // },
     {
       id: "actions",
       header: "Actions",
