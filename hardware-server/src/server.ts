@@ -28,7 +28,8 @@ function decodeStudentCode(studentCode : string) {
   }
 
   const cardNumber = code[0].slice(2)
-  const lastName = code[1].split(".")[0]
+  const lastName = code[1].split(".")[0].split("/")[0].trim()
+  console.log(lastName)
   // const personNumber = code[2].slice(14, 22)
 
   const regex = /(?<=0000000)(\d{8})(?=0000000)/;
@@ -66,7 +67,7 @@ app.post('/', async (req: Request, res: Response) => {
     const {id} = studentEntry[0]
     const officeHoursID = await getOfficeHoursID(readerId)
 
-    const session = await createStudentSession(id, officeHoursID, new Date(Date.now() + 1000 * 60 * 5))
+    const session = await createStudentSession(id, officeHoursID, new Date(Date.now() + 1000 * 60 * 10))
     console.log(session)
     res.json({ cardNumber, lastName, personNumber, readerId })
     

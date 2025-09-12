@@ -14,9 +14,10 @@ interface StudentViewProps {
     course: UserCourse
     office_hours_id: string
     student_id: string
+    handleRemoveFromQueue: (queueEntry: Queue[]) => void
 }
 
-export default function StudentView({queue, course, office_hours_id, student_id}:StudentViewProps) {
+export default function StudentView({queue, course, office_hours_id, student_id, handleRemoveFromQueue}:StudentViewProps) {
   const [loading, setLoading] = useState(false)
   const [isJoining, setIsJoining] = useState(false)
   const [hasJoinedQueue, setHasJoinedQueue] = useState(false)
@@ -160,18 +161,19 @@ export default function StudentView({queue, course, office_hours_id, student_id}
   const handleLeaveQueue = async () => {
     try {
         setIsJoining(true)
-        const response = await fetch("/api/queue/leave",{
-            method:"POST",
-            headers:{
-                "Content-Type" : "application/json"
-            },
-            body: JSON.stringify({office_hours_id})
-        })
-        const data = await response.json()
-        const {leftQueue} = data
-        if(!leftQueue){
-            throw new Error("Error while removing user from the queue")
-        }
+        handleRemoveFromQueue(queue.filter((q : any) => q.student === student_id))
+        // const response = await fetch("/api/queue/leave",{
+        //     method:"POST",
+        //     headers:{
+        //         "Content-Type" : "application/json"
+        //     },
+        //     body: JSON.stringify({office_hours_id})
+        // })
+        // const data = await response.json()
+        // const {leftQueue} = data
+        // if(!leftQueue){
+        //     throw new Error("Error while removing user from the queue")
+        // }
 
       setHasJoinedQueue(false)
       setSessionStatus("waiting")

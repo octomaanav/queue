@@ -195,7 +195,8 @@ export default function QueuePage() {
 
   const handleRemoveFromQueue = async (queueEntry: Queue[]) => {
     const updatedQueue = await removeFromQueue(queueEntry);
-    console.log("Updated queue:", updatedQueue);
+    console.log(queueEntry)
+    console.log(updatedQueue)
     if (queueEntry) {
       setQueue((prevQueue) => {
         const updatedQueue = prevQueue.filter((entry) => !queueEntry.includes(entry));
@@ -216,6 +217,7 @@ export default function QueuePage() {
         course={course!}
         office_hours_id={office_hours_id}
         student_id={session?.user?.id!}
+        handleRemoveFromQueue={handleRemoveFromQueue}
       />
     </div>
   );
